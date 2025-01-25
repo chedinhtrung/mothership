@@ -21,7 +21,7 @@ Components:
         - Software: preferrably C++
         - On board GPS & battery indicator
 
-Knowledge needed & sources: 
+- Knowledge: 
     - State estimation (Extended Kalman Filter), control and regulation 
     - Autopilot design
     - System design
@@ -31,10 +31,10 @@ Knowledge needed & sources:
     - Multiple View Geometry in Computer Vision
     - Basic Object Detection models
 
-Sources:
+- Sources:
     [1] Dan Simon - Optimal State Estimation 
     [2] Randal W. Beard - Small Unmanned Aircraft Theory and Practice
     [3] deeplearningbook.org
-    [4] 
+    [4] Richard Hartley - Multiple View Geometry in Computer Vision
 
 
