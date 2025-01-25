@@ -2,7 +2,8 @@
 
 Goal: Autonomous drone that is carried by a rover. Using autopilot, it can follow the rover and land on it.
 
-Components: 
+Components:
+ 
     - Drone: + Arduino based flight controller
              + Raspberry Pi Zero 2W based flight computer with camera
              + Drone connects to Rover via Rover's wifi router
