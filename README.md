@@ -32,9 +32,9 @@ Components:
     - Basic Object Detection models
 
 - Sources:
-    [1] Dan Simon - Optimal State Estimation 
-    [2] Randal W. Beard - Small Unmanned Aircraft Theory and Practice
-    [3] deeplearningbook.org
-    [4] Richard Hartley - Multiple View Geometry in Computer Vision
+    * [1] Dan Simon - Optimal State Estimation 
+    * [2] Randal W. Beard - Small Unmanned Aircraft Theory and Practice
+    * [3] deeplearningbook.org
+    * [4] Richard Hartley - Multiple View Geometry in Computer Vision
 
 
