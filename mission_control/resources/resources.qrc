@@ -1,0 +1,19 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>close.png</file>
+    <file>controller.png</file>
+    <file>log.png</file>
+    <file>login.png</file>
+    <file>power.png</file>
+    <file>signal_0.png</file>
+    <file>signal_1.png</file>
+    <file>signal_2.png</file>
+    <file>signal_3.png</file>
+    <file>signal_4.png</file>
+    <file>sos.png</file>
+    <file>trace.png</file>
+    <file>photo.png</file>
+    <file>map.png</file>
+    <file>launch.png</file>
+</qresource>
+</RCC>
