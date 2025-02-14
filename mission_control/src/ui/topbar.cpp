@@ -39,13 +39,13 @@ TopBar::TopBar(QWidget* parent, QWidget* rootui) : QWidget(parent){
 
     minimize_button = new QPushButton("__");
     minimize_button->setStyleSheet(style_minimize_button);
-    minimize_button->setFixedHeight(height);
+    minimize_button->setFixedHeight(height-2);
     minimize_button->setFixedWidth(static_cast<int>(screenWidth/20));
 
     close_button = new QPushButton();
     close_button->setStyleSheet(style_close_button);
     close_button->setIcon(QIcon(":/close.png"));
-    close_button->setFixedHeight(height);
+    close_button->setFixedHeight(height-2);
     close_button->setFixedWidth(static_cast<int>(screenWidth/20));
 
     if (rootui != nullptr){

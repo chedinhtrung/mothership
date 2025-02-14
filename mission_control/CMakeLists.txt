@@ -3,7 +3,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 project(MissionControl)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OpenGL OpenGLWidgets)
+
+find_library(OPENGL_LIB NAMES opengl32 PATHS "C:/Windows/System32")
+
 file(GLOB SOURCES "src/*.cpp" "src/ui/*.cpp")
 file(GLOB HEADERS "include/*.h" "include/ui/*.h") 
 file(GLOB RESOURCES "resources/*.qrc") 
@@ -24,4 +27,13 @@ target_link_libraries(MissionControl
     Qt6::Widgets
     Qt6::Core
     Qt6::Gui
+    Qt6::OpenGL
+    Qt6::OpenGLWidgets
 )
+
+if(OPENGL_LIB)
+    message(STATUS "Found OpenGL: ${OPENGL_LIB}")
+    target_link_libraries(MissionControl PRIVATE ${OPENGL_LIB})
+else()
+    message("OpenGL not found!")
+endif()

@@ -13,12 +13,17 @@ MainUI::MainUI(QWidget* parent) : QWidget(parent){
     sidebar = new SideBar();
     tabbar = new TabBar();
     maintab = new MainTab();
+    flightdisp = new FlightDisplay();
+
     tabbar->addTab(maintab, "Mission Control");
 
     QVBoxLayout* layout = new QVBoxLayout();
+
     QHBoxLayout* row2 = new QHBoxLayout();    
     row2->addWidget(sidebar);
+    row2->addWidget(flightdisp);
     row2->addWidget(tabbar);
+
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(topbar);

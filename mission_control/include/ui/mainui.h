@@ -9,6 +9,7 @@
 #include "topbar.h"
 #include "tabbar.h"
 #include "maintab.h"
+#include "flightdisplay.h"
 
 #ifndef MAINUI
 #define MAINUI 
@@ -21,6 +22,8 @@ public:
     SideBar* sidebar; 
     TabBar* tabbar;
     MainTab* maintab;
+    FlightDisplay* flightdisp;
+    
 
 public slots:
 };
