@@ -17,7 +17,23 @@ FlightDisplay::FlightDisplay(QWidget* parent) : QOpenGLWidget(parent){
     // test function
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &FlightDisplay::onTestUpdate);
-    timer->start(100);
+    timer->start(50);
+    /* 
+    roll = 30;
+    pitch = 10;
+    heading = 10;
+    alt = 115.7;
+    update();
+    */
+}
+
+void FlightDisplay::onTestUpdate(){
+    pitch += 0.2;
+    roll += 0.5;
+    heading += 1;
+    alt += 0.4;
+    airspeed += 0.4;
+    update();
 }
 
 FlightDisplay::~FlightDisplay(){}
@@ -34,27 +50,23 @@ void FlightDisplay::resizeGL(int w, int h){
 }
 
 void FlightDisplay::paintGL(){
-    QPainter painter(this);
-    if (!painter.isActive()) {
-        qWarning() << "Painter is not active!";
-        return;
-    }
-
     glClear(GL_COLOR_BUFFER_BIT);
+    glLineWidth(3.0);
     draw_heading(heading);
     draw_pitch(pitch, roll);
     draw_viewpoint();
     draw_roll();
     draw_alt();
+    draw_airspeed();
 }
 
 void FlightDisplay::draw_pitch(float pitch, float roll){
     for (int i=-36; i<=36; i++){
-        if (abs(i*5 + pitch) > 20){continue;}
+        if (abs(i*5 + pitch) > 15){continue;}   // Limit to current pitch +- 15
         float dev = abs(i + pitch/5);
         float alpha;
         if (dev <= 1){alpha = 1.0f;} 
-        else {alpha = 0.15 + 1/dev;}
+        else {alpha = 0.1 + 1/dev;}
         if (i%2){
             draw_pitchmarker((pitch + i*5), roll, 0.2, QString::number(-i*5), alpha, i==0);
         } else {
@@ -153,6 +165,7 @@ void FlightDisplay::draw_heading_markers(float heading, float r){
     float marker_len;
 
     glColor3f(0.0f, 0.8f, 0.5f);
+    glLineWidth(3.0f);
     for (int i=-36; i<=36; i++){
         float angle = (90 + i*5 + heading)*3.14159/180;
         // Markers
@@ -178,13 +191,6 @@ void FlightDisplay::draw_heading_markers(float heading, float r){
         }
     }
 
-}
-
-void FlightDisplay::onTestUpdate(){
-    pitch += 0.5;
-    roll += 1;
-    heading += 1;
-    update();
 }
 
 
@@ -233,6 +239,7 @@ void FlightDisplay::draw_roll(){
 void FlightDisplay::draw_roll(float roll, float r, float start, float end, int n_seg){
     // The arc
     float total_angle = end - start;
+    glLineWidth(3.0);
     glBegin(GL_LINE_STRIP); 
     glColor3f(0.0f, 0.8f, 0.5f);
     for (int i=0; i<=n_seg; i++){
@@ -287,17 +294,125 @@ void FlightDisplay::draw_alt(){
 
 void FlightDisplay::draw_alt(float alt){
     draw_ruler_alt(alt);
+    draw_indicator_alt(0.52);
 }
 
-void FlightDisplay::draw_ruler_alt(float alt, float x, float y, float h){
+float get_circular_offset(float x, int step){
+    return x - static_cast<int>(x/step)*step;
+}
+
+void FlightDisplay::draw_ruler_alt(float alt, float x, float y, float h, int range, int step_s, int step_m, int step_l){
     glColor3f(0.0f, 0.8f, 0.5f);
+    glLineWidth(3.0);
     glBegin(GL_LINES);
         glVertex2f(x, -h/2+y);
         glVertex2f(x, h/2+y);
-        for (int i=-2; i<=2; i++){
-
-        }
     glEnd();
+
+    float offset = get_circular_offset(alt, step_l);
+
+    float steplen = h*step_s/range;
+    glLineWidth(1.0);
+
+    float len_marker_base = 0.03;
     
+    for (int i=-range/2/step_s-step_l; i<=range/2/step_s+step_l; i++){
+        float len_marker = len_marker_base;
+        float coord_y = (i-offset/step_s)*steplen;
+        if (coord_y < -h/2 || coord_y > h/2){continue;}
+        
+        if (i*step_s%step_l == 0){
+            len_marker*=2.5;
+            int mark_num = static_cast<int>(alt/step_l)*step_l + i*step_s;
+            draw_text(QString::number(mark_num), x+len_marker, coord_y, M_PI/2, 10);
+        } 
+        else if (i*step_s%step_m == 0){len_marker*=1.7;}
+        glBegin(GL_LINES);
+        glVertex2f(x, coord_y);
+        glVertex2f(x+len_marker, coord_y);
+        glEnd();
+    }
+
+    draw_text(QString::number(static_cast<int>(alt)), x+len_marker_base*2.5, y, M_PI/2, 10);
+}
+
+void FlightDisplay::draw_indicator_alt(float x, float w, float h){
+    glColor4f(0.0, 0.8, 0.5, 0.3);
+    glBegin(GL_POLYGON);
+        glVertex2f(x, 0.0f);
+        glVertex2f(x+w/3, h/2);
+        glVertex2f(x+w, h/2);
+        glVertex2f(x+w, -h/2);
+        glVertex2f(x+w/3, -h/2);
+    glEnd();
+    glColor4f(0.0, 0.8, 0.5, 1);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(x, 0.0f);
+        glVertex2f(x+w/3, h/2);
+        glVertex2f(x+w, h/2);
+        glVertex2f(x+w, -h/2);
+        glVertex2f(x+w/3, -h/2);
+    glEnd();
+}
+
+void FlightDisplay::draw_indicator_airspeed(float x, float w, float h){
+    glColor4f(0.0, 0.8, 0.5, 0.3);
+    glBegin(GL_POLYGON);
+        glVertex2f(x, 0.0f);
+        glVertex2f(x-w/3, h/2);
+        glVertex2f(x-w, h/2);
+        glVertex2f(x-w, -h/2);
+        glVertex2f(x-w/3, -h/2);
+    glEnd();
+    glColor4f(0.0, 0.8, 0.5, 1);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(x, 0.0f);
+        glVertex2f(x-w/3, h/2);
+        glVertex2f(x-w, h/2);
+        glVertex2f(x-w, -h/2);
+        glVertex2f(x-w/3, -h/2);
+    glEnd();
+}
+
+void FlightDisplay::draw_ruler_airspeed(float airspeed, float x, float y, float h, int range, int step_s, int step_l){
+    glColor3f(0.0f, 0.8f, 0.5f);
+    glLineWidth(3.0);
+    glBegin(GL_LINES);
+        glVertex2f(x, -h/2+y);
+        glVertex2f(x, h/2+y);
+    glEnd();
+
+    float offset = get_circular_offset(airspeed, step_l);
+
+    float steplen = h*step_s/range;
+    glLineWidth(1.0);
+
+    float len_marker_base = 0.03;
+    
+    for (int i=-range/2/step_s-step_l; i<=range/2/step_s+step_l; i++){
+        float len_marker = len_marker_base;
+        float coord_y = (i-offset/step_s)*steplen;
+        if (coord_y < -h/2 || coord_y > h/2){continue;}
+        
+        if (i*step_s%step_l == 0){
+            len_marker*=1.7;
+            int mark_num = static_cast<int>(airspeed/step_l)*step_l + i*step_s;
+            draw_text(QString::number(mark_num), x-len_marker, coord_y, M_PI/2, -10);
+        } 
+        glBegin(GL_LINES);
+        glVertex2f(x, coord_y);
+        glVertex2f(x-len_marker, coord_y);
+        glEnd();
+    }
+    draw_text(QString::number(static_cast<int>(airspeed)), x-len_marker_base,y, M_PI/2, -10);
+}
+
+void FlightDisplay::draw_airspeed(){
+    draw_airspeed(airspeed);
+}
+
+void FlightDisplay::draw_airspeed(float airspeed){
+    draw_ruler_airspeed(airspeed);
+    draw_indicator_airspeed();
 }
 

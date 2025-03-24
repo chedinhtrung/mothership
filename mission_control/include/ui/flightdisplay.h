@@ -61,7 +61,8 @@ class FlightDisplay : public QOpenGLWidget, protected QOpenGLFunctions{
 
     void draw_alt(float alt);
     void draw_alt();
-    void draw_ruler_alt(float alt, float x=0.6, float y=0, float h=1.2);
+    void draw_ruler_alt(float alt, float x=0.5, float y=0, float h=1, int range=40, int step_s=1, int step_m=5, int step_l=10);
+    void draw_indicator_alt(float x=0.5, float w=0.21, float h=0.12);
 
     void draw_vspeed(float vspeed);
     void draw_vspeed();
@@ -69,7 +70,10 @@ class FlightDisplay : public QOpenGLWidget, protected QOpenGLFunctions{
 
     void draw_airspeed(float airspeed);
     void draw_airspeed();
-    void draw_ruler_airspeed(float x, float y, float h);
+    void draw_ruler_airspeed(float alt, float x=-0.6, float y=0, float h=1, int range=64, int step_s=4, int step_l=8);
+    void draw_indicator_airspeed(float x=-0.63, float w=0.21, float h=0.12);
+
+    void draw_textbox(QString txt, float x, float y, float w, float h);
 
 
     coord relative_to_pix(coord c);
