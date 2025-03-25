@@ -3,7 +3,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 project(MissionControl)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OpenGL OpenGLWidgets)
+set(CMAKE_PREFIX_PATH "C:/Qt/6.7.3/msvc2019_64")
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OpenGL OpenGLWidgets WebEngineWidgets)
 
 find_library(OPENGL_LIB NAMES opengl32 PATHS "C:/Windows/System32")
 
@@ -29,6 +30,7 @@ target_link_libraries(MissionControl
     Qt6::Gui
     Qt6::OpenGL
     Qt6::OpenGLWidgets
+    Qt6::WebEngineWidgets
 )
 
 if(OPENGL_LIB)

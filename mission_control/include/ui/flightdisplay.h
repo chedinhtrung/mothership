@@ -54,7 +54,7 @@ class FlightDisplay : public QOpenGLWidget, protected QOpenGLFunctions{
 
     void draw_viewpoint(float len=0.8);
     void draw_text(QString txt, float x, float y, float r, 
-                    float x_offset=0, float y_offset=0, float alpha=1.0);
+                    float x_offset=0, float y_offset=0, QColor color=QColor(0, 204, 127, 255));
 
     void draw_roll(float roll, float r=0.85, float start=M_PI/4, float end=3*M_PI/4, int n_seg=50);
     void draw_roll();

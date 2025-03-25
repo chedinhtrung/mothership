@@ -12,7 +12,6 @@ FlightDisplay::FlightDisplay(QWidget* parent) : QOpenGLWidget(parent){
     int height = static_cast<int>(screenHeight/2.5);
     setFixedSize(QSize(width, height));
     //setAttribute(Qt::WA_AlwaysStackOnTop, true);
-    setAutoFillBackground(false); 
 
     // test function
     QTimer* timer = new QTimer(this);
@@ -50,6 +49,7 @@ void FlightDisplay::resizeGL(int w, int h){
 }
 
 void FlightDisplay::paintGL(){
+    //qDebug() << "Repaint";
     glClear(GL_COLOR_BUFFER_BIT);
     glLineWidth(3.0);
     draw_heading(heading);
@@ -94,7 +94,7 @@ void FlightDisplay::draw_pitchmarker(float pitch, float roll,
     } else {
         glColor4f(0.0f, 0.8f, 0.5f, alpha);
     }
-    draw_text(text,x2t, y2t, roll_rad+M_PI/2, 15, 0, alpha);
+    draw_text(text,x2t, y2t, roll_rad+M_PI/2, 15, 0, QColor(0, 204, 127, alpha*254));
     glLineWidth(3.0);
     glBegin(GL_LINES);
         glVertex2f(x1t, y1t); 
@@ -167,7 +167,7 @@ void FlightDisplay::draw_heading_markers(float heading, float r){
     glColor3f(0.0f, 0.8f, 0.5f);
     glLineWidth(3.0f);
     for (int i=-36; i<=36; i++){
-        float angle = (90 + i*5 + heading)*3.14159/180;
+        float angle = (90 - i*5 + heading)*3.14159/180;
         // Markers
         glBegin(GL_LINES);
         if (i%2){marker_len = large_marker;}
@@ -181,16 +181,16 @@ void FlightDisplay::draw_heading_markers(float heading, float r){
         if (abs(i*5) % 30 == 0){
             int num;
             if (i < 0){ num=i*5+360; } else { num=i*5; }
+            QColor color = QColor(0, 204, 127, 255);
             QString txt = QString::number(static_cast<int>(num/10));
-            if (i*5 == 0){txt="N";}
-            if (i*5 == 90){txt="E";}
-            if (i*5 == 180 || i*5 == -180){txt="S";}
-            if (i*5 == -90){txt="W";}
+            if (i*5 == 0){txt="N"; color = QColor(255, 0, 0, 255);}
+            if (i*5 == 90){txt="E"; color = QColor(255, 0, 0, 255);}
+            if (i*5 == 180 || i*5 == -180){txt="S"; color = QColor(255, 0, 0, 255);}
+            if (i*5 == -90){txt="W"; color = QColor(255, 0, 0, 255);}
             
-            draw_text(txt, marker_lower_x, marker_lower_y, angle, 0, 5);
+            draw_text(txt, marker_lower_x, marker_lower_y, angle, 0, 8, color);
         }
     }
-
 }
 
 
@@ -204,13 +204,16 @@ coord FlightDisplay::relative_to_pix(coord c){
 }
 
 void FlightDisplay::draw_text(QString txt, float x, float y, float r, 
-                                float x_offset, float y_offset, float alpha){
+                                float x_offset, float y_offset, QColor color){
+    /*
+    x, y, r in relative coords [-1, 1]. Offset in pixel
+    */ 
+   
     // convert to pixel coords
-    //QOpenGLPaintDevice device = QOpenGLPaintDevice(size());
-    // x, y, r in relative coords [-1, 1]. Offset in pixel
+    // QOpenGLPaintDevice device = QOpenGLPaintDevice(size());
     QPainter painter(this);
-    int alp = static_cast<int>(254*alpha);
-    painter.setPen(QColor(0, 204, 127, alp));
+    //int alp = static_cast<int>(254*alpha);
+    painter.setPen(color);
     painter.setFont(QFont("Arial", 8));
     
     coord txt_c; 
@@ -293,8 +296,8 @@ void FlightDisplay::draw_alt(){
 }
 
 void FlightDisplay::draw_alt(float alt){
-    draw_ruler_alt(alt);
     draw_indicator_alt(0.52);
+    draw_ruler_alt(alt);
 }
 
 float get_circular_offset(float x, int step){
@@ -322,9 +325,9 @@ void FlightDisplay::draw_ruler_alt(float alt, float x, float y, float h, int ran
         if (coord_y < -h/2 || coord_y > h/2){continue;}
         
         if (i*step_s%step_l == 0){
-            len_marker*=2.5;
+            len_marker*=2.9;
             int mark_num = static_cast<int>(alt/step_l)*step_l + i*step_s;
-            draw_text(QString::number(mark_num), x+len_marker, coord_y, M_PI/2, 10);
+            draw_text(QString::number(mark_num), x+len_marker, coord_y, M_PI/2, 12);
         } 
         else if (i*step_s%step_m == 0){len_marker*=1.7;}
         glBegin(GL_LINES);
@@ -333,11 +336,12 @@ void FlightDisplay::draw_ruler_alt(float alt, float x, float y, float h, int ran
         glEnd();
     }
 
-    draw_text(QString::number(static_cast<int>(alt)), x+len_marker_base*2.5, y, M_PI/2, 10);
+    draw_text(QString::number(static_cast<int>(alt)), x+len_marker_base*2.9, y, M_PI/2, 12);
 }
 
 void FlightDisplay::draw_indicator_alt(float x, float w, float h){
-    glColor4f(0.0, 0.8, 0.5, 0.3);
+    glColor4f(0.8, 0.0, 0.0, 0.5);
+    glLineWidth(3.0);
     glBegin(GL_POLYGON);
         glVertex2f(x, 0.0f);
         glVertex2f(x+w/3, h/2);
@@ -356,7 +360,8 @@ void FlightDisplay::draw_indicator_alt(float x, float w, float h){
 }
 
 void FlightDisplay::draw_indicator_airspeed(float x, float w, float h){
-    glColor4f(0.0, 0.8, 0.5, 0.3);
+    glColor4f(0.8, 0.0, 0.0, 0.5);
+    glLineWidth(3.0);
     glBegin(GL_POLYGON);
         glVertex2f(x, 0.0f);
         glVertex2f(x-w/3, h/2);
@@ -395,16 +400,16 @@ void FlightDisplay::draw_ruler_airspeed(float airspeed, float x, float y, float 
         if (coord_y < -h/2 || coord_y > h/2){continue;}
         
         if (i*step_s%step_l == 0){
-            len_marker*=1.7;
+            len_marker*=2.2;
             int mark_num = static_cast<int>(airspeed/step_l)*step_l + i*step_s;
-            draw_text(QString::number(mark_num), x-len_marker, coord_y, M_PI/2, -10);
+            draw_text(QString::number(mark_num), x-len_marker, coord_y, M_PI/2, -12);
         } 
         glBegin(GL_LINES);
         glVertex2f(x, coord_y);
         glVertex2f(x-len_marker, coord_y);
         glEnd();
     }
-    draw_text(QString::number(static_cast<int>(airspeed)), x-len_marker_base,y, M_PI/2, -10);
+    draw_text(QString::number(static_cast<int>(airspeed)), x-len_marker_base*2.2,y, M_PI/2, -12);
 }
 
 void FlightDisplay::draw_airspeed(){
@@ -412,7 +417,7 @@ void FlightDisplay::draw_airspeed(){
 }
 
 void FlightDisplay::draw_airspeed(float airspeed){
-    draw_ruler_airspeed(airspeed);
     draw_indicator_airspeed();
+    draw_ruler_airspeed(airspeed);
 }
 
