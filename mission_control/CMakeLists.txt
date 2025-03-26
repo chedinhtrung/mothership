@@ -4,6 +4,7 @@ set(CMAKE_AUTORCC ON)
 project(MissionControl)
 
 set(CMAKE_PREFIX_PATH "C:/Qt/6.7.3/msvc2019_64")
+# TODO: build cfg for ubuntu
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OpenGL OpenGLWidgets WebEngineWidgets)
 
 find_library(OPENGL_LIB NAMES opengl32 PATHS "C:/Windows/System32")
