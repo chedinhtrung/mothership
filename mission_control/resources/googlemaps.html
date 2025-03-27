@@ -17,27 +17,23 @@
       and consistent behavior across browsers, consider loading using Promises
       with https://www.npmjs.com/package/@googlemaps/js-api-loader.
       -->
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&language=en"
-      
-    ></script>
 <script>
 
-var map;
 var current_pos = {lat: 0, lng: 0};
-var current_marker = new google.maps.Marker();
 var traces = [];
-
 var follow = false;
-let streetview;
 
-function initMap() {
-  const eu = { lat: 50.0, lng: 10 };
-  map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 5,
-    center: eu,
+let map;
+let current_marker;
+
+async function initMap() {
+  const { Map } = await google.maps.importLibrary("maps");
+
+  map = new Map(document.getElementById("map"), {
+    center: { lat: 50, lng: 0},
+    zoom: 2,
   });
-  streetview = map.getStreetView();
+  current_marker = new google.maps.Marker();
 }
 
 function update_location(lng, lat) {
@@ -46,11 +42,11 @@ function update_location(lng, lat) {
     let marker = new google.maps.Marker({
     position: current_pos,
     map: map,
-    icon: 'Resources/pos.png',
+    icon: 'pos.png',
   });
     current_marker = marker;
     let icon = {
-    url:'Resources/trace.png',
+    url:'trace.png',
     anchor: new google.maps.Point(5, 2),
     }
     let trace = new google.maps.Marker({
@@ -82,8 +78,13 @@ map.setZoom(19);
 }
 
 initMap();
-
-window.initMap = initMap;
 </script>
+
+<script
+  src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&language=en&callback=initMap&loading=async"
+  async
+  defer
+></script>
+
   </body>
 </html>

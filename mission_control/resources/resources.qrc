@@ -15,5 +15,7 @@
     <file>photo.png</file>
     <file>map.png</file>
     <file>launch.png</file>
+    <file>googlemaps.html</file>
+    <file>../config.json</file>
 </qresource>
 </RCC>
