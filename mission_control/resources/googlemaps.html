@@ -6,8 +6,10 @@
     
   </head>
   <body>
-<div><button type="button" id="center" style="background: none rgb(255, 255, 255); margin: 10px; padding: 10px; z-index:100; position: absolute; cursor: pointer; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px; top: 55px; left: 6px;" onclick="centerRover()"> Center<br> Rover</button></div>
-<div><button type="button" id="follow" style="background: none rgb(255, 255, 255); margin: 10px; padding: 10px; z-index:100; position: absolute; cursor: pointer; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px; top: 55px; left: 80px;" onclick="set_follow()"> Follow<br> Rover</button></div>
+<div><button type="button" id="center" style="background: none rgb(255, 255, 255); margin: 10px; padding: 10px; z-index:100; position: absolute; cursor: pointer; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px; top: 55px; left: 6px;" onclick="centerRover()"> Center</button></div>
+<div><button type="button" id="follow" style="background: none rgb(255, 255, 255); margin: 10px; padding: 10px; z-index:100; position: absolute; cursor: pointer; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px; top: 55px; left: 80px;" onclick="set_follow()"> Follow</button></div>
+<div><button type="button" id="track" style="background: none rgb(255, 255, 255); margin: 10px; padding: 10px; z-index:100; position: absolute; cursor: pointer; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px; top: 100px; left: 6px;" onclick="set_track()"> Trace</button></div>
+
     <!--The div element for the map -->
     <div id="map" style="height:100%; width:100%"></div>
 
@@ -22,6 +24,7 @@
 var current_pos = {lat: 0, lng: 0};
 var traces = [];
 var follow = false;
+var record_track = false;
 
 let map;
 let current_marker;
@@ -36,42 +39,70 @@ async function initMap() {
   current_marker = new google.maps.Marker();
 }
 
-function update_location(lng, lat) {
-    current_pos = {lat: lat, lng: lng};
-    current_marker.setMap(null);
-    let marker = new google.maps.Marker({
-    position: current_pos,
-    map: map,
-    icon: 'pos.png',
-  });
-    current_marker = marker;
-    let icon = {
-    url:'trace.png',
-    anchor: new google.maps.Point(5, 2),
-    }
+function update_location(lng, lat, heading) {
+  // heading in degrees, north = 0 west = 270
+
+  var nav_icon = {
+    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,  
+    scale: 6, 
+    strokeWeight: 2,
+    fillColor: "#FF0000",
+    fillOpacity: 1,
+    strokeColor: "#F90000",
+    rotation: heading,
+    anchor: new google.maps.Point(0, 3)
+  };
+
+  var icon_trace = {
+    url:'qrc:/trace.png',
+
+    anchor: new google.maps.Point(5, 5),
+    scaledSize: new google.maps.Size(10,10), 
+  };
+
+  current_pos = {lat: lat, lng: lng};
+  current_marker.setMap(null);
+    
+  if (record_track){
     let trace = new google.maps.Marker({
     position: current_pos,
     map: map,
-    icon: icon,
+    icon: icon_trace,
+    });
+    traces.push(trace);
+  }
+
+  let marker = new google.maps.Marker({
+    position: current_pos,
+    map: map,
+    icon: nav_icon,
   });
-    if (follow){
-      map.panTo(current_pos);
-    }
-}
+
+  current_marker = marker;
+  if (follow){
+    map.panTo(current_pos);
+  }
+};
 
 function set_follow(){
-  if (follow){
-    follow = false;
-    let button = document.getElementById("follow");
-    button.style.backgroundColor = "white";
-  } else {
-    follow = true;
-    let button = document.getElementById("follow");
-    button.style.backgroundColor = "green";
-    centerRover();
-  }
+  let button = document.getElementById("follow");
+  follow = !follow;
+  button.style.backgroundColor = follow ? "green" : "white";
+  if (follow){centerRover();}
 }
 
+function set_track(){
+  let button = document.getElementById("track");
+  record_track = !record_track;
+  button.style.backgroundColor = record_track ? "green" : "white";
+  if (!record_track){
+    traces.forEach((item, index) => {
+    item.setMap(null);  // Remove marker from the map
+    traces[index] = null;  // Set the array element to null
+    });    
+    traces.length = 0;
+  }
+}
 function centerRover (){
 map.panTo(current_pos);
 map.setZoom(19);

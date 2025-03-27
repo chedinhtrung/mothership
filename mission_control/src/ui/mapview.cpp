@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QWebEngineSettings>
+#include <QTimer>
 
 MapView::MapView(QWidget* parent, QString map_api_key) : QWebEngineView(parent){
     settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
@@ -11,16 +12,34 @@ MapView::MapView(QWidget* parent, QString map_api_key) : QWebEngineView(parent){
     settings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
     settings()->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
     settings()->setAttribute(QWebEngineSettings::WebGLEnabled, true);
-    setZoomFactor(0.5);
+    setZoomFactor(0.7);
 
     QString html = loadHtml(map_api_key);
-    QUrl base_url = QUrl::fromLocalFile("C:/Users/steve/OneDrive/Desktop/mothership/mission_control/resources/googlemaps.html");
     setHtml(html);
-    //load(QUrl::fromLocalFile("C:/Users/steve/OneDrive/Desktop/mothership/mission_control/resources/googlemaps.html"));
+
+    // test function
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MapView::onTestUpdate);
+    timer->start(150);
+}
+
+void MapView::onTestUpdate(){
+    static float lon, lat, head = 0.0;
+    lon += 0.001;
+    lat += 0.001;
+    head += 1;
+    updateLocation(lon, lat, head);
 }
 
 MapView::~MapView(){
 
+}
+
+void MapView::updateLocation(float lon, float lat, float heading){
+    char buf[50];
+    sprintf(buf, "update_location(%f, %f, %f)", lon, lat, heading);
+    QString JSCall = QString(buf);
+    page()->runJavaScript(JSCall);
 }
 
 QString MapView::loadHtml(QString map_api_key) {
