@@ -18,9 +18,9 @@ MapView::MapView(QWidget* parent, QString map_api_key) : QWebEngineView(parent){
     setHtml(html);
 
     // test function
-    QTimer* timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MapView::onTestUpdate);
-    timer->start(150);
+    //QTimer* timer = new QTimer(this);
+    //connect(timer, &QTimer::timeout, this, &MapView::onTestUpdate);
+    //timer->start(150);
 }
 
 void MapView::onTestUpdate(){

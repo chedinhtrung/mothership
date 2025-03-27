@@ -17,6 +17,5 @@
     <file>launch.png</file>
     <file>googlemaps.html</file>
     <file>../config.json</file>
-    <file>nav.png</file>
 </qresource>
 </RCC>
