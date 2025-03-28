@@ -10,19 +10,20 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OpenGL OpenGLWidgets WebEn
 find_library(OPENGL_LIB NAMES opengl32 PATHS "C:/Windows/System32")
 
 file(GLOB SOURCES "src/*.cpp" "src/ui/*.cpp")
-file(GLOB HEADERS "include/*.h" "include/ui/*.h") 
+file(GLOB HEADERS "include/*.h" "include/ui/*.h" "../lib") 
 file(GLOB RESOURCES "resources/*.qrc") 
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# IMPORTANT! NOT INCLUDING HEADERS IN ADD_EXECUTABLES WILL CAUSE UNDEFINED REFERENCE TO VTABLE
+# This is a quirk of Qt having Meta Object Compilation (MOC), adding the headers forces 
+# the MOC-generated object files to be linked 
 add_executable(MissionControl
    ${SOURCES}
    ${HEADERS}
    ${RESOURCES}
 )
 qt_add_resources(MissionControl "resources/resources.qrc")
-
-# IMPORTANT! NOT INCLUDING HEADERS IN ADD_EXECUTABLES WILL CAUSE UNDEFINED REFERENCE TO VTABLE
 
 target_link_libraries(MissionControl 
     PRIVATE 

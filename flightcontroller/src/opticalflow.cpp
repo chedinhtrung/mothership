@@ -47,8 +47,7 @@ bool micolink_check_sum(MICOLINK_MSG_t* msg)
     else {
         Serial.println("Bad checksum");
         return false;
-    }
-        
+    }    
 }
 
 bool OpticalFlow::micolink_parse_char(uint8_t data)

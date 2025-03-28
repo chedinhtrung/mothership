@@ -16,7 +16,7 @@ FlightDisplay::FlightDisplay(QWidget* parent) : QOpenGLWidget(parent){
     // test function
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &FlightDisplay::onTestUpdate);
-    timer->start(50);
+    timer->start(100);
     /* 
     roll = 30;
     pitch = 10;

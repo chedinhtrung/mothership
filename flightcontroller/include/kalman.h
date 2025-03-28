@@ -3,9 +3,10 @@
 
 #include <BasicLinearAlgebra.h>
 #include "imu.h"
+#include "dataexchange.h"
 using namespace BLA;
 
-#define GPS_UPDATE_RATE 10      // 10 Hz GPS loop
+#define GPS_UPDATE_RATE 10
 
 /*
     Reference: Dan Simon Optimal State Estimations, p.409
@@ -24,12 +25,12 @@ class AttitudeKalman {
             0.0f, 1e-8, 0.0f,
             0.0f, 0.0f, 1e-8
         }; 
-        BLA::Matrix<3,3,float> R = {     // Covariance of 0.1g 
+        BLA::Matrix<3,3,float> R = {     // Covariance of 0.1g ^ 2
             0.01f, 0.0f, 0.0f,
             0.0f, 0.01f, 0.0f,
             0.0f, 0.0f, 0.01f
         };
-        BLA::Matrix<3,3,float> P = {    // Covariance of 2 degrees, to radian
+        BLA::Matrix<3,3,float> P = {    // Covariance of 2 degrees^2, to radian 
             1.22e-3, 0.0f, 0.0f,
             0.0f, 1.22e-3, 0.0f,
             0.0f, 0.0f, 1.22e-3
@@ -47,12 +48,17 @@ class AttitudeKalman {
         AttitudeKalman();
         void predict(ConvertedImuData gyros);
         void update_roll_pitch(ConvertedImuData accels);
+        void update_heading(ConvertedImuData magneto);
         ConvertedImuData read_euler();
 };
 
 class PositionKalman {
     public:
         PositionKalman();
+        void predict(ConvertedImuData accels);
+        //void update_pos(LonLat lonlat);
+        //void update_vel(ConvertedImuData flows);
+        //void update_alt(float alt);
 };
 
 #endif
