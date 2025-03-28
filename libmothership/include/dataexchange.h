@@ -10,13 +10,13 @@
 
 #include <cstdint>
 enum MessageType : uint8_t {
-    INFO,
-    DEBUG,
-    ERROR,
-    CMD,
-    NAV,
-    TELEMETRY,
-    FLIGHTDISP
+    M_INFO,
+    M_DEBUG,
+    M_ERROR,
+    M_CMD,
+    M_NAV,
+    M_TELEMETRY,
+    M_FLIGHTDISP
 };
 
 enum MessageSource : uint8_t {
@@ -35,13 +35,11 @@ struct Message {
     uint16_t payload_len;
     uint8_t* payload = nullptr;
     uint8_t checksum;
-    ~Message();
 };
 
 struct SerializedMessage {
     uint8_t* buf = nullptr;
     int16_t total_len;
-    ~SerializedMessage();
 };
 
 struct NavPayload { 
@@ -68,7 +66,7 @@ class MsgParser {
     */
     private: 
         uint8_t bytecount = 0;
-        uint8_t sum;
+        uint8_t sum = 0;
     public: 
         Message msg;    // Current message being parsed
         uint8_t status = 0; // current step during sequential parse

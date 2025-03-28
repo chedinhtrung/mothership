@@ -5,5 +5,5 @@ file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "include/*.h") 
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-add_library(libmothership ${SOURCES})
+add_library(mothership ${SOURCES})
 add_executable(libmothership_test ${SOURCES} test/test.cpp)

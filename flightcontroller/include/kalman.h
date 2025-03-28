@@ -3,7 +3,7 @@
 
 #include <BasicLinearAlgebra.h>
 #include "imu.h"
-#include "dataexchange.h"
+
 using namespace BLA;
 
 #define GPS_UPDATE_RATE 10

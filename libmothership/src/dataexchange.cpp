@@ -12,9 +12,10 @@ SerializedMessage serialize(Message m){
     memcpy(msg_buf, &m.payload_len, sizeof(uint16_t)); msg_buf += sizeof(uint16_t);
     memcpy(msg_buf, m.payload, m.payload_len); msg_buf += m.payload_len;
     // Calculate checksum
-    uint8_t checksum;
-    for (uint8_t* ptr = msg_buf0; ptr<msg_buf0+total_len-sizeof(uint8_t); ptr++){
-        checksum ^= *ptr;
+    uint8_t checksum = 0;
+    for (uint8_t* ptr = msg_buf0; ptr < msg_buf0+total_len-sizeof(uint8_t); ptr++){
+        std::cout << " " << (unsigned int)*ptr;
+        checksum ^= (uint8_t)*ptr;
     }
     m.checksum = checksum;
     memcpy(msg_buf, &m.checksum, sizeof(uint8_t));  msg_buf += sizeof(uint8_t);
@@ -29,14 +30,15 @@ SerializedMessage serialize(Message m){
 Message structure: 
 
 | StartByte | type | source | Len | --- Payload --- | Checksum |
-    1B         1B      1B     2B         len             2B
+    1B         1B      1B     2B         len             1B
 */
 
 bool MsgParser::parse(uint8_t data){
     // check startbyte
     switch (status){
         case 0:
-            
+            // WARNING: msg is deleted when a new msg begins. NOT THREAD SAFE.
+            delete msg.payload;
             msg.payload = nullptr;
             memset(&msg, 0, sizeof(msg));
             if (data == UART_STARTBYTE){
@@ -79,7 +81,13 @@ bool MsgParser::parse(uint8_t data){
             bytecount = 0;
             status = 0;
             // Checksum
-            return sum == msg.checksum; 
+            bool isvalid;
+            isvalid = sum == msg.checksum; 
+            sum = 0;
+            return isvalid;
+        
+        default: 
+            return 0;
     }
 }
 
@@ -93,12 +101,3 @@ bool MsgParser::parse(uint8_t* data, unsigned int len){
    }
    return valid;
 }   
-
-SerializedMessage::~SerializedMessage(){
-    delete buf;
-}
-
-Message::~Message(){
-    delete payload;
-}
-

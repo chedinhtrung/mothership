@@ -6,7 +6,7 @@ int main() {
     
     // Test message format
     Message m;
-    m.type = NAV;
+    m.type = M_NAV;
     m.source = DRONE;
     m.payload_len = sizeof(NavPayload);
     m.payload = (uint8_t*)malloc(sizeof(NavPayload));
@@ -24,7 +24,7 @@ int main() {
 
     // Test message serialization
     SerializedMessage sm = serialize(m);
-    std::cout << "Total len:" << sm.total_len << "\n";    //payload = 10B, type = 1B, source = 1B, len = 2B, checksum = 2B => 16B 
+    std::cout << "Total len:" << sm.total_len << "\n";  //payload = 10B, type = 1B, source = 1B, len = 2B, checksum = 2B => 16B 
     uint8_t mtype; 
     memcpy(&mtype, sm.buf, sizeof(uint8_t));
     printf("Type %i, Source %i, Len: %i \n", *sm.buf, *(sm.buf+1), *(sm.buf+2));     // Expected: NAV = 4
@@ -48,8 +48,11 @@ int main() {
         printf("Using parser heading:%i, lat:%f, lon:%f \n", 
         parsed_payload.heading, parsed_payload.lat, parsed_payload.lon);  
     } else { 
-        std::cout << "invalid msg, stopped at " << (int)parser.status;
-        std::cout << "\n message len =  " << std::hex << std::uppercase << parser.msg.payload_len;
+        std::cout << "invalid msg, stopped at " << (int)parser.status << "\n";
+        printf("Type: %i, Source: %i, Len: %i", parser.msg.type, parser.msg.source, parser.msg.payload_len);
+        memcpy(&parsed_payload, parser.msg.payload, sizeof(NavPayload));
+        printf("Using parser heading:%i, lat:%f, lon:%f \n", 
+        parsed_payload.heading, parsed_payload.lat, parsed_payload.lon);  
     }
 
     return 0;
