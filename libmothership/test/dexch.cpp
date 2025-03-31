@@ -40,8 +40,11 @@ int main() {
     unsigned int payload_len =  new_msg.get_payload_len();
     std::cout<< "Payload len: " << payload_len;
     
-    memcpy(&new_nav, new_msg.payload, payload_len);
-    printf("lon: %f, lat: %f, head: %i", new_nav.lon, new_nav.lat, new_nav.heading);
+    if (m.get_nav(new_nav)){
+        printf("lon: %f, lat: %f, head: %i", new_nav.lon, new_nav.lat, new_nav.heading);
+    } else {
+        std::cout << "Expecting nav payload, got other type";
+    }
     
     
     return 0;

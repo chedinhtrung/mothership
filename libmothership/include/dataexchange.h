@@ -59,6 +59,9 @@ struct Message {
     Message(FlightDispPayload pl);
     ~Message();
     MSG_LEN_TYPE get_payload_len();
+
+    bool get_nav(NavPayload &pl);
+    bool get_flightdisp(FlightDispPayload &pl);
 };
 
 #pragma pack()

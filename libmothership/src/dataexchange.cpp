@@ -80,10 +80,33 @@ Message::~Message(){
 }
 
 MSG_LEN_TYPE Message::get_payload_len(){
+    // Message.len = length when serialized. since Message.valid is not serialized
+    // It is not counted
     return len - sizeof(Message) + sizeof(bool) + sizeof(uint8_t*);
 }
 
+bool Message::get_nav(NavPayload &pl){
+    if (type != M_NAV || get_payload_len() != sizeof(NavPayload)) {
+        std::cerr << "Message of wrong type, expecting message type NavPayload";
+        return false;
+    }
+    memcpy(&pl, payload, sizeof(NavPayload));
+    return true;
+}
+
+bool Message::get_flightdisp(FlightDispPayload &pl){
+    if (type != M_FLIGHTDISP || get_payload_len() != sizeof(FlightDispPayload)) {
+        std::cerr << "Message of wrong type, expecting message type FlightDispPlayload";
+        return false;
+    }
+    memcpy(&pl, payload, sizeof(FlightDispPayload));
+    return true;
+}
+
 bool parse(Message &m, uint8_t data){
+    /*
+        Parse next byte of the message (meant for UART use)
+    */
     static int M_PARSE_BYTECOUNT = 0;
     static uint8_t M_PARSE_SUM = 0;
     static int M_PARSE_STEP = 0;
