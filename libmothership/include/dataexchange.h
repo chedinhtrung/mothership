@@ -1,5 +1,5 @@
 /*
-    Unified data exchange form between Rover, Drone, and MissionControl
+    Unified data exchange format between Rover, Drone, and MissionControl
 */
 #ifndef DEXCH 
 #define DEXCH
@@ -7,6 +7,8 @@
 #define NETWORK_STARTBYTE 0x51
 #define FLIGHT_DISP_UPDATE_RATE 10
 #define NAV_UPDATE_RATE 10
+#define MSG_LEN_TYPE uint16_t
+#define CHECKSUM_TYPE uint8_t
 
 #include <cstdint>
 enum MessageType : uint8_t {
@@ -28,50 +30,43 @@ enum MessageSource : uint8_t {
 
 #pragma pack(1)       // No padding! 
 
-// Message is serialized in this order
-struct Message { 
-    MessageType type;
-    MessageSource source;
-    uint16_t payload_len;
-    uint8_t* payload = nullptr;
-    uint8_t checksum;
-};
-
-struct SerializedMessage {
-    uint8_t* buf = nullptr;
-    int16_t total_len;
-};
-
+// Note: declare Payload types before Message types!
 struct NavPayload { 
-    float lon;
-    float lat;
-    int16_t heading;
+    float lon = 0.0;
+    float lat = 0.0;
+    int16_t heading = 0;
 };
 
 struct FlightDispPayload { 
-    int16_t roll;           // To be set: (int)100*roll. 
-    int16_t pitch;
-    int8_t vspeed;
-    int8_t gspeed;
-    int16_t alt;
+    int16_t roll = 0;           // To be set: (int)100*roll. 
+    int16_t pitch = 0;
+    int8_t vspeed = 0;
+    int8_t gspeed = 0;
+    int16_t alt = 0;
+};
+
+// Message is serialized in this order
+struct Message { 
+    MSG_LEN_TYPE len = 0;
+    MessageType type = M_INFO;
+    MessageSource source = MISSION_CTL;
+    uint8_t* payload = nullptr;
+    CHECKSUM_TYPE checksum = 0;
+    bool valid = 1;
+
+    Message() = default;
+    Message(NavPayload pl);
+    Message(FlightDispPayload pl);
+    ~Message();
+    MSG_LEN_TYPE get_payload_len();
 };
 
 #pragma pack()
 
-SerializedMessage serialize(Message m);
+int serialize(uint8_t* &buf, Message &m);
+int serialize_uart(uint8_t* &buf, Message &m);
 
-class MsgParser {
-    /*
-        WARNING: not thread safe! parser will free the memory of msg everytime a new msg begins
-    */
-    private: 
-        uint8_t bytecount = 0;
-        uint8_t sum = 0;
-    public: 
-        Message msg;    // Current message being parsed
-        uint8_t status = 0; // current step during sequential parse
-        bool parse(uint8_t data);             // parse next byte, for arduino UART. Returns true when msg is complete
-        bool parse(uint8_t* data, unsigned int len);   // parse all at once, for socket
-};
+bool parse(Message &m, uint8_t data);
+
 
 #endif

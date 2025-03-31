@@ -2,88 +2,139 @@
 #include <cstring>
 #include <iostream>
 
-SerializedMessage serialize(Message m){
-    const int total_len = sizeof(Message) - sizeof(uint8_t*) + m.payload_len;
-    uint8_t* msg_buf = new uint8_t[total_len];
-    uint8_t* msg_buf0 = msg_buf;
-    memset(msg_buf, 0, total_len);
-    memcpy(msg_buf, &m.type, sizeof(MessageType)); msg_buf += sizeof(MessageType);
-    memcpy(msg_buf, &m.source, sizeof(MessageSource)); msg_buf += sizeof(MessageSource);
-    memcpy(msg_buf, &m.payload_len, sizeof(uint16_t)); msg_buf += sizeof(uint16_t);
-    memcpy(msg_buf, m.payload, m.payload_len); msg_buf += m.payload_len;
-    // Calculate checksum
-    uint8_t checksum = 0;
-    for (uint8_t* ptr = msg_buf0; ptr < msg_buf0+total_len-sizeof(uint8_t); ptr++){
-        std::cout << " " << (unsigned int)*ptr;
-        checksum ^= (uint8_t)*ptr;
-    }
-    m.checksum = checksum;
-    memcpy(msg_buf, &m.checksum, sizeof(uint8_t));  msg_buf += sizeof(uint8_t);
-    msg_buf -= total_len;
-    SerializedMessage serialized_msg;
-    serialized_msg.buf = msg_buf;
-    serialized_msg.total_len = total_len;
-    return serialized_msg;
-}
-
 /*
-Message structure: 
+Serialized Message structure: 
 
-| StartByte | type | source | Len | --- Payload --- | Checksum |
-    1B         1B      1B     2B         len             1B
+| StartByte | len | type | source | --- Payload --- | Checksum |
+    1B         1B    1B      2B          len             1B
+
+valid is not serialized, hence not considered in Message::get_payload_len()
 */
 
-bool MsgParser::parse(uint8_t data){
-    // check startbyte
-    switch (status){
+int serialize(uint8_t* &buf, Message &m){
+    // Serialize without a startbyte, for network transport
+    int len = m.len;
+    int payload_len = m.get_payload_len();
+
+    buf = (uint8_t*)malloc(len);
+    
+    uint8_t* buf0 = buf;
+    memcpy(buf, &m.len, sizeof(MSG_LEN_TYPE)); buf += sizeof(MSG_LEN_TYPE);
+    memcpy(buf, &m.type, sizeof(MessageType)); buf += sizeof(MessageType);
+    memcpy(buf, &m.source, sizeof(MessageSource)); buf += sizeof(MessageSource);
+    
+    memcpy(buf, m.payload, payload_len); buf += payload_len;
+    uint8_t checksum = 0;
+    for (uint8_t* ptr = buf0; ptr < buf0 + len - sizeof(CHECKSUM_TYPE); ptr++){
+        checksum ^= *ptr;
+    }; 
+    m.checksum = checksum;
+    memcpy(buf, &m.checksum, sizeof(CHECKSUM_TYPE)); buf += sizeof(CHECKSUM_TYPE);
+    buf -= len;
+    return len; // Returns the actual length of the buffer 
+}
+
+int serialize_uart(uint8_t* &buf, Message &m){
+    int len = m.len;
+    int payload_len =  m.get_payload_len();
+
+    buf = (uint8_t*)malloc(len + 1);
+    *buf = UART_STARTBYTE;
+    buf++;
+    uint8_t* buf0 = buf;
+    memcpy(buf, &m.len, sizeof(MSG_LEN_TYPE)); buf += sizeof(MSG_LEN_TYPE);
+    memcpy(buf, &m.type, sizeof(MessageType)); buf += sizeof(MessageType);
+    memcpy(buf, &m.source, sizeof(MessageSource)); buf += sizeof(MessageSource);
+    
+    memcpy(buf, m.payload, payload_len); buf += payload_len;
+    uint8_t checksum = 0;
+    for (uint8_t* ptr = buf0; ptr < buf0 + len - sizeof(CHECKSUM_TYPE); ptr++){
+        checksum ^= *ptr;
+    }; 
+    m.checksum = checksum;
+    memcpy(buf, &m.checksum, sizeof(CHECKSUM_TYPE)); buf += sizeof(CHECKSUM_TYPE);
+    buf -= (len + 1);
+    return len + 1; // Returns the actual length of the buffer 
+}
+
+// Message len = length when serialized
+
+Message::Message(NavPayload pl){
+    type = M_NAV;
+    len = sizeof(Message) - sizeof(uint8_t*) - sizeof(bool) + sizeof(NavPayload);
+    payload = (uint8_t*)malloc(sizeof(NavPayload));
+    memcpy(payload, &pl, sizeof(NavPayload));
+}
+
+Message::Message(FlightDispPayload pl){
+    type = M_FLIGHTDISP;
+    len = sizeof(Message) - sizeof(uint8_t*) - sizeof(bool) + sizeof(FlightDispPayload);
+    payload = (uint8_t*)malloc(sizeof(FlightDispPayload));
+    memcpy(payload, &pl, sizeof(FlightDispPayload));
+}
+
+Message::~Message(){
+    // WARNING: Double deletion danger!
+    delete payload;
+    payload = nullptr;
+}
+
+MSG_LEN_TYPE Message::get_payload_len(){
+    return len - sizeof(Message) + sizeof(bool) + sizeof(uint8_t*);
+}
+
+bool parse(Message &m, uint8_t data){
+    static int M_PARSE_BYTECOUNT = 0;
+    static uint8_t M_PARSE_SUM = 0;
+    static int M_PARSE_STEP = 0;
+    MSG_LEN_TYPE payload_len;
+    switch (M_PARSE_STEP){
         case 0:
-            // WARNING: msg is deleted when a new msg begins. NOT THREAD SAFE.
-            delete msg.payload;
-            msg.payload = nullptr;
-            memset(&msg, 0, sizeof(msg));
             if (data == UART_STARTBYTE){
-                status++;
+                M_PARSE_STEP++;
+                return 0;
             }
-            return 0;
-
         case 1: 
-            msg.type = (MessageType)data;
-            status++; sum ^= data;
+            memcpy(&m.len + M_PARSE_BYTECOUNT, &data, 1);
+            M_PARSE_BYTECOUNT++; M_PARSE_SUM ^= data;
+            if (M_PARSE_BYTECOUNT == 2){
+                M_PARSE_BYTECOUNT = 0;
+                M_PARSE_STEP++;
+            } 
+            return 0;
+            
+        case 2: 
+            m.type = (MessageType)data; M_PARSE_SUM ^= data;
+            M_PARSE_STEP++;
             return 0;
 
-        case 2:
-            msg.source = (MessageSource)data;
-            status++; sum ^= data;
+        case 3: 
+            m.source = (MessageSource)data; M_PARSE_SUM ^= data;
+            M_PARSE_STEP++;
+            return 0;
+    
+        case 4: 
+            payload_len = m.get_payload_len();
+            if (M_PARSE_BYTECOUNT == 0){
+                m.payload = (uint8_t*)malloc(payload_len);
+            }
+            memcpy(m.payload + M_PARSE_BYTECOUNT, &data, 1);
+            M_PARSE_BYTECOUNT += 1; M_PARSE_SUM ^= data;
+            if (M_PARSE_BYTECOUNT == payload_len){
+                M_PARSE_STEP++;
+                M_PARSE_BYTECOUNT = 0;
+            }
             return 0;
         
-        case 3: 
-            memcpy(&(msg.payload_len) + bytecount, &data, 1);
-            bytecount += 1; sum ^= data;
-            if (bytecount == 2){    // Msg len is uint16_t = 2B
-                status++;
-                bytecount = 0;
-            }
-            return 0;
-
-        case 4: 
-            if (bytecount == 0){
-                msg.payload = (uint8_t*)malloc(msg.payload_len);
-            }
-            memcpy(msg.payload + bytecount, &data, 1);
-            bytecount += 1; sum ^= data;
-            if (bytecount == msg.payload_len){
-                status++;
-                bytecount = 0;
-            }
-            return 0;
         case 5:
-            memcpy(&(msg.checksum), &data, 1);
-            bytecount = 0;
-            status = 0;
+            m.checksum = data;
+            M_PARSE_BYTECOUNT = 0;
+            M_PARSE_STEP = 0;
             // Checksum
             bool isvalid;
-            isvalid = sum == msg.checksum; 
-            sum = 0;
+            isvalid = M_PARSE_SUM == m.checksum; 
+            M_PARSE_SUM = 0;
+            m.valid = isvalid;
             return isvalid;
         
         default: 
@@ -91,13 +142,4 @@ bool MsgParser::parse(uint8_t data){
     }
 }
 
-bool MsgParser::parse(uint8_t* data, unsigned int len){
-    /*
-        WARNING: incorrect len will lead to crash/undefined behavior
-    */
-   bool valid = false;
-   for (uint8_t* ptr = data; ptr < data + len; ptr++){
-        valid = parse(*ptr);
-   }
-   return valid;
-}   
+
