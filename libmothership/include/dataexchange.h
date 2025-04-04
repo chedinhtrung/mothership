@@ -3,12 +3,12 @@
 */
 #ifndef DEXCH 
 #define DEXCH
-#define UART_STARTBYTE 0x78
-#define NETWORK_STARTBYTE 0x51
+#define MSG_STARTBYTE 0x51
 #define FLIGHT_DISP_UPDATE_RATE 10
 #define NAV_UPDATE_RATE 10
-#define MSG_LEN_TYPE uint16_t
+#define MSG_LEN_TYPE uint8_t
 #define CHECKSUM_TYPE uint8_t
+#define MSG_BUF_SIZE 128
 
 #include <cstdint>
 enum MessageType : uint8_t {
@@ -45,31 +45,55 @@ struct FlightDispPayload {
     int16_t alt = 0;
 };
 
+unsigned int get_payload_len(MessageType mt);
+
 // Message is serialized in this order
 struct Message { 
     MSG_LEN_TYPE len = 0;
     MessageType type = M_INFO;
     MessageSource source = MISSION_CTL;
-    uint8_t* payload = nullptr;
+    uint8_t payload[MSG_BUF_SIZE];
     CHECKSUM_TYPE checksum = 0;
     bool valid = 1;
 
     Message() = default;
-    Message(NavPayload pl);
-    Message(FlightDispPayload pl);
-    ~Message();
-    MSG_LEN_TYPE get_payload_len();
-
-    bool get_nav(NavPayload &pl);
-    bool get_flightdisp(FlightDispPayload &pl);
+    
+    template<typename PL_TYPE>
+    Message(PL_TYPE pl);
+    
+    template<typename PL_TYPE>
+    PL_TYPE get_data();  
 };
+
+// Template defs must be in header
+// Missing these will lead to undefined reference error
+
+template<typename PL_TYPE>
+Message::Message(PL_TYPE pl){
+    if constexpr (std::is_same_v<PL_TYPE, NavPayload>){
+        type = M_NAV;
+    } else if constexpr (std::is_same_v<PL_TYPE, FlightDispPayload>) {
+        type = M_FLIGHTDISP;
+    }
+    // Further payload types here
+
+    len = sizeof(Message) - sizeof(len) - sizeof(payload) + get_payload_len(type);
+    memcpy(payload, &pl, sizeof(PL_TYPE));
+}
+
+template<typename PL_TYPE>
+PL_TYPE Message::get_data(){
+    PL_TYPE result; 
+    memcpy(&result, payload, sizeof(PL_TYPE));
+    return result;
+}
 
 #pragma pack()
 
-int serialize(uint8_t* &buf, Message &m);
-int serialize_uart(uint8_t* &buf, Message &m);
+// Templated funct def must be done in header
+
+int serialize(uint8_t* buf, Message &m);
 
 bool parse(Message &m, uint8_t data);
-
 
 #endif

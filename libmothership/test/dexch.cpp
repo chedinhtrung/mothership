@@ -12,21 +12,24 @@ int main() {
 
     Message m(payload);
 
-    std::cout << "message length " << m.len << "\n";
-    NavPayload decoded_payload;
-    memcpy(&decoded_payload, m.payload, sizeof(NavPayload));
+    std::cout << "message length " << (unsigned int)m.len << "\n";
+    NavPayload decoded_payload = m.get_data<NavPayload>();
     printf("Decoded payload heading:%i, lat:%f, lon:%f \n", 
         decoded_payload.heading, decoded_payload.lat, decoded_payload.lon);
 
+
+    
     // Test message serialization
-    std::cout << "Serializing \n";
-    uint8_t* buf;
-    int len = serialize_uart(buf, m);
-    std::cout << "Total len:" << len << "\n";  //payload = 10B, type = 1B, source = 1B, len = 2B, checksum = 1B => 15B 
+    uint8_t buf[MSG_BUF_SIZE];
+    int len = serialize(buf, m);
+    std::cout << "Serialized:" << len << "\n";  //payload = 10B, type = 1B, source = 1B, len = 1B, checksum = 1B => 14B 
+
     
     // Test parsing
+    
     Message new_msg;
     bool valid = false;
+    parse(new_msg, MSG_STARTBYTE);
     for (uint8_t* ptr = buf; ptr < buf+len; ptr++){
         valid = parse(new_msg, *ptr);
     } 
@@ -36,16 +39,9 @@ int main() {
     }
     printf("Len: %i, Type: %i, Source: %i, ", 
             m.len, m.type, m.source);
-    NavPayload new_nav;
-    unsigned int payload_len =  new_msg.get_payload_len();
-    std::cout<< "Payload len: " << payload_len;
+    NavPayload new_nav = m.get_data<NavPayload>();
     
-    if (m.get_nav(new_nav)){
-        printf("lon: %f, lat: %f, head: %i", new_nav.lon, new_nav.lat, new_nav.heading);
-    } else {
-        std::cout << "Expecting nav payload, got other type";
-    }
-    
+    printf("lon: %f, lat: %f, head: %i", new_nav.lon, new_nav.lat, new_nav.heading);
     
     return 0;
 }
