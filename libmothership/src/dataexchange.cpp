@@ -6,8 +6,8 @@
 /*
 Serialized Message structure: 
 
-| StartByte | len | type | source | --- Payload --- | Checksum |
-    1B         1B    1B      2B          len             1B
+| StartByte | len  | type | source | --- Payload --- | Checksum |
+    1B         1B     1B      1B          len             1B
 
 valid is not serialized, hence not considered in Message::get_payload_len()
 */
