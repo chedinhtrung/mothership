@@ -2,6 +2,9 @@
 #define RECEIVER
 #include <PulsePosition.h>
 
+#define PPM_PIN 9
+
+
 struct ReceiverData {
     float ThrottleIn;
     float RollIn;

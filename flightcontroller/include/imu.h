@@ -4,8 +4,7 @@
 #include "config.h"
 #include <Arduino.h>
 
-#define IMUADDR 0x68 // MPU6050/9250 I2C address
-#define MAGADDR 0x0C
+#define IMUADDR 0x68  // MPU6050/9250 I2C address
 
 struct RawImuData {
     int16_t x = 0;

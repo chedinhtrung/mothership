@@ -17,7 +17,7 @@ enum MessageType : uint8_t {
     M_ERROR,
     M_CMD,
     M_NAV,
-    M_TELEMETRY,
+    M_SENS,
     M_FLIGHTDISP
 };
 
@@ -39,10 +39,15 @@ struct NavPayload {
 
 struct FlightDispPayload { 
     int16_t roll = 0;           // To be set: (int)100*roll. 
-    int16_t pitch = 0;
-    int8_t vspeed = 0;
+    int16_t pitch = 0;          // To be set: (int)100*pitch
+    int8_t vspeed = 0;          
     int8_t gspeed = 0;
     int16_t alt = 0;
+};
+
+struct SensPayload { 
+    uint8_t vol;
+    int8_t temp;
 };
 
 unsigned int get_payload_len(MessageType mt);
@@ -74,23 +79,24 @@ Message::Message(PL_TYPE pl){
         type = M_NAV;
     } else if constexpr (std::is_same_v<PL_TYPE, FlightDispPayload>) {
         type = M_FLIGHTDISP;
+    } else if constexpr (std::is_same_v<PL_TYPE, SensPayload>) {
+        type=M_SENS;
     }
     // Further payload types here
 
-    len = sizeof(Message) - sizeof(len) - sizeof(payload) + get_payload_len(type);
+    len = sizeof(Message) - sizeof(len) - sizeof(payload) - sizeof(valid) + get_payload_len(type);
     memcpy(payload, &pl, sizeof(PL_TYPE));
 }
 
 template<typename PL_TYPE>
 PL_TYPE Message::get_data(){
+    // WARNING: it is caller's responsibility to guarantee correct type!
     PL_TYPE result; 
     memcpy(&result, payload, sizeof(PL_TYPE));
     return result;
 }
 
 #pragma pack()
-
-// Templated funct def must be done in header
 
 int serialize(uint8_t* buf, Message &m);
 

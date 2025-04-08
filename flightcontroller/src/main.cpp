@@ -42,7 +42,7 @@ void loop(){
 }
 
 void serialEvent3(){
-    if (of.micolink_decode((uint8_t)Serial3.read())) {
+    if (of.micolink_decode((uint8_t)OF_SERIAL.read())) {
         /*
         Serial.printf("h: %i, fx: %i, fy: %i, qf: %i", of.payload.distance, of.payload.flow_vel_x, 
                         of.payload.flow_vel_y, of.payload.flow_quality);
