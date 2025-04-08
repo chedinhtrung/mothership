@@ -6,19 +6,30 @@
 #include "utils.h"
 #include "opticalflow.h"
 #include "dps310.h"
+#include "rpi.h"
 
 Imu imu = Imu();
 AttitudeKalman attitude_kf = AttitudeKalman();
 OpticalFlow of = OpticalFlow();
 Dps310Altimeter alt = Dps310Altimeter();
+Rpi pi;
 
 void setup(){
-
     // Start comm
     Serial.begin(115200);   // Serial debug
     Wire.begin();
     Wire.setClock(400000);  // High speed i2c with imu, altimeter, magnetometer
     delay(4000);
+
+    NavPayload npl;
+    npl.lat = 10.0;
+
+    Message m(npl);
+    pi.send(m);
+
+    NavPayload new_npl = m.get_data<NavPayload>();
+    Serial.println();
+    Serial.printf("payload recv: %f %f % i", new_npl.lat, new_npl.lon, new_npl.heading);
 
     // Setup imu: Subtract gyro static bias
     imu.setup();
