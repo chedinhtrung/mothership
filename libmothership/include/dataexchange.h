@@ -11,6 +11,8 @@
 #define MSG_BUF_SIZE 128
 
 #include <cstdint>
+#include <type_traits>
+
 enum MessageType : uint8_t {
     M_INFO,
     M_DEBUG,

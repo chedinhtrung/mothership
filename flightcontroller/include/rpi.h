@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #define RPI_SERIAL Serial4
+
 #include "dataexchange.h"
 
 // Class to communicate with Pi, using common data exchange formats

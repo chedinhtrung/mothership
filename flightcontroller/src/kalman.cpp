@@ -51,8 +51,10 @@ void AttitudeKalman::predict(ConvertedImuData gyros){
 }
 
 void AttitudeKalman::update_roll_pitch(ConvertedImuData accels){
+    // update confidence based on how different acceleration is from g
+    // static --> |acceleration| = 1g.
     float a_norm = abs(accels.x*accels.x + accels.y*accels.y + accels.z*accels.z - 1.0);
-    float meas_covar = a_norm + 0.004;
+    float meas_covar = 0.5*a_norm + 0.0004;
     R(0,0) = meas_covar;
     R(1,1) = meas_covar;
     R(2,2) = meas_covar;

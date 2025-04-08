@@ -1,7 +1,6 @@
 #include "dataexchange.h"
 #include <cstring>
 #include <iostream>
-#include <type_traits>
 
 /*
 Serialized Message structure: 
