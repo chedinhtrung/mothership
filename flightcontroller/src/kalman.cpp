@@ -73,7 +73,7 @@ void AttitudeKalman::update_roll_pitch(ConvertedImuData accels){
     BLA::Matrix<3,3,float> I_KH = (I - K * H);
     K = P * ~H * BLA::Inverse(H * P * ~H + R);
     x += K * (y - h);
-    P = I_KH*P*(~I_KH) + K*R*~K;        // Follows Eq. 5.19 p.129, remark: This form is more stable. Empirically confirmed to be more stable
+    P = I_KH*P*(~I_KH) + K*R*~K;        // Follows Eq. 5.19 p.129, remark: This form is empirically confirmed to be more stable
 }
 
 ConvertedImuData AttitudeKalman::read_euler(){

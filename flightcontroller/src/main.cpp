@@ -21,16 +21,6 @@ void setup(){
     Wire.setClock(400000);  // High speed i2c with imu, altimeter, magnetometer
     delay(4000);
 
-    NavPayload npl;
-    npl.lat = 10.0;
-
-    Message m(npl);
-    pi.send(m);
-
-    NavPayload new_npl = m.get_data<NavPayload>();
-    Serial.println();
-    Serial.printf("payload recv: %f %f % i", new_npl.lat, new_npl.lon, new_npl.heading);
-
     // Setup imu: Subtract gyro static bias
     imu.setup();
     delay(100);
@@ -49,7 +39,7 @@ void loop(){
     attitude_kf.update_roll_pitch(data.accel);
     ConvertedImuData euler = attitude_kf.read_euler();
     rad_to_deg(euler); 
-    debug("euler:", euler);
+    //debug("euler:", euler);
 }
 
 void serialEvent3(){
