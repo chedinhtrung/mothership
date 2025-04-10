@@ -11,10 +11,10 @@ AttitudeKalman::AttitudeKalman(){
 
 
 void AttitudeKalman::predict(ConvertedImuData gyros){
-    float sin_phi = sinf(x(0,0));
-    float cos_phi = cosf(x(0,0));
-    float sin_theta = sinf(x(1,0));
-    float cos_theta = cosf(x(1,0));
+    sin_phi = sinf(x(0,0));
+    cos_phi = cosf(x(0,0));
+    sin_theta = sinf(x(1,0));
+    cos_theta = cosf(x(1,0));
     if (abs(cos_theta) < 0.01){ cos_theta = 0.01/cos_theta*abs(cos_theta);}    // Prevent singularity
     float tan_theta = sin_theta/cos_theta;
 
@@ -82,4 +82,15 @@ ConvertedImuData AttitudeKalman::read_euler(){
     data.y = x(1,0);
     data.z = x(2,0);
     return data;
+}
+
+EulerTrigonometryCache AttitudeKalman::get_euler_trigs(){
+    // returns the trigonometrics of euler angles for use elsewhere
+    // saves recalculation
+    EulerTrigonometryCache cache;
+    cache.sin_phi = sin_phi;
+    cache.cos_phi = cos_phi;
+    cache.sin_theta = sin_theta;
+    cache.cos_theta = cos_theta;
+    return cache;
 }

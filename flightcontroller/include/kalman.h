@@ -50,6 +50,10 @@ class AttitudeKalman {
         void update_roll_pitch(ConvertedImuData accels);
         void update_heading(ConvertedImuData magneto);
         ConvertedImuData read_euler();
+
+        // cache values
+        float sin_phi, cos_phi, sin_theta, cos_theta;
+        EulerTrigonometryCache get_euler_trigs();
 };
 
 class PositionKalman {

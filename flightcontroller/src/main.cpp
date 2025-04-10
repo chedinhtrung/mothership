@@ -7,22 +7,28 @@
 #include "opticalflow.h"
 #include "dps310.h"
 #include "rpi.h"
+#include "compass.h"
 
 Imu imu = Imu();
 AttitudeKalman attitude_kf = AttitudeKalman();
 OpticalFlow of = OpticalFlow();
 Dps310Altimeter alt = Dps310Altimeter();
 Rpi pi;
+Magnetometer mag = Magnetometer();
+
 
 void setup(){
     // Start comm
     Serial.begin(115200);   // Serial debug
     Wire.begin();
     Wire.setClock(400000);  // High speed i2c with imu, altimeter, magnetometer
+    //mag.calibrate();
     delay(4000);
-
+    //mag.calibrate();
     // Setup imu: Subtract gyro static bias
     imu.setup();
+    delay(100);
+    mag.setup();
     delay(100);
 
     // Setup altimeter: Get calibration terms, get start alt
@@ -30,16 +36,25 @@ void setup(){
 }
 
 unsigned long last_mainloop_update;
+unsigned long last_compass;
 
 void loop(){
-    if (micros()-last_mainloop_update < DT*1e3) {return;}
-    last_mainloop_update = micros();
-    ImuData data = imu.read();
-    attitude_kf.predict(data.gyro);
-    attitude_kf.update_roll_pitch(data.accel);
-    ConvertedImuData euler = attitude_kf.read_euler();
-    rad_to_deg(euler); 
-    //debug("euler:", euler);
+    if (micros() - last_mainloop_update > DT*1e3){
+        last_mainloop_update = micros();
+        ImuData data = imu.read();
+        attitude_kf.predict(data.gyro);
+        attitude_kf.update_roll_pitch(data.accel);
+        ConvertedImuData euler = attitude_kf.read_euler();
+    }
+
+    if (millis() - last_compass > 10){
+        last_compass = millis();
+        float heading = mag.read_compensated_heading(attitude_kf.get_euler_trigs());
+    
+        Serial.printf("Heading: %f", heading);
+        Serial.println();
+    }
+    
 }
 
 void serialEvent3(){

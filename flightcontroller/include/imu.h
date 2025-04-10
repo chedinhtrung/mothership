@@ -24,12 +24,22 @@ struct ImuData {
     ConvertedImuData magneto;
 };
 
+struct EulerTrigonometryCache {
+    float sin_phi = 0;
+    float cos_phi = 0;
+    float sin_theta = 0;
+    float cos_theta = 0;
+};
+
 class Imu {
     public:  
         ImuData offset; 
         void setup();
         ImuData read();
         void calibrate_gyro();
+
+        RawImuData raw_accels;
+        RawImuData raw_gyros;
 };
 
 #endif 
