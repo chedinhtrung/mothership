@@ -36,7 +36,7 @@ void setup(){
 }
 
 unsigned long last_mainloop_update;
-unsigned long last_compass;
+unsigned long last_compass; 
 
 void loop(){
     if (micros() - last_mainloop_update > DT*1e3){
@@ -45,14 +45,18 @@ void loop(){
         attitude_kf.predict(data.gyro);
         attitude_kf.update_roll_pitch(data.accel);
         ConvertedImuData euler = attitude_kf.read_euler();
+        
     }
 
-    if (millis() - last_compass > 10){
+    if (millis() - last_compass > 40){
         last_compass = millis();
         float heading = mag.read_compensated_heading(attitude_kf.get_euler_trigs());
-    
+        
+        /*
         Serial.printf("Heading: %f", heading);
         Serial.println();
+        */
+       Serial.printf("r %f p %f y %f iy %f \n", attitude_kf.x(0,0)/PI*180, attitude_kf.x(1,0)/PI*180, attitude_kf.x(2,0)/PI*180);
     }
     
 }
