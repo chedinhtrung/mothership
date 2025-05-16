@@ -79,8 +79,8 @@ void Quaternion::print(char* buf){
     // Here only prints into a buffer.
 }
 
-Vector3D Quaternion::vec(){
-    Vector3D vec;
+MSVector3 Quaternion::vec(){
+    MSVector3 vec;
     vec.x = i;
     vec.y = j; 
     vec.z = k;

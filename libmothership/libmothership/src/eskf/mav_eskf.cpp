@@ -1,20 +1,20 @@
 #include "mav_eskf.h"
 #include "BasicLinearAlgebra/BasicLinearAlgebra.h"
+#include "msvector.h"
 /*
 
 Based on Joan Sola Quaternion Kinematics for the error-state Kalman filter
 
 */ 
-
-typedef struct State {
-    Vector3D p; 
-    Vector3D v; 
-    Vector3D ab;    // Accelerometer bias
-    Vector3D gb;    // Gyroscope bias
+struct State {
+    MSVector3 p; 
+    MSVector3 v; 
+    MSVector3 ab;    // Accelerometer bias
+    MSVector3 gb;    // Gyroscope bias
     Quaternion q;   // Drone orientation
-    Vector3D g;     // gravity vector
+    MSVector3 g;     // gravity vector
 };
 
-typedef struct StateVec {
+struct StateVec {
     BLA::Matrix<3,3> mat;
 }; 

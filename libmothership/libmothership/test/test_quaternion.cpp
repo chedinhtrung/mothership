@@ -51,5 +51,16 @@ int main(){
     std::cout << "Expecting: " << "(0, 0.6, 0, 0.8)" << "\n";
     std::cout << "Got:      " << buf << "\n\n";
 
+    sprintf(buf, "(%f, %f, %f, %f)", q6.data[0], q6.data[1], q6.data[2], q6.data[3]);
+    std::cout << "Testing union \n";
+    std::cout << "Expecting: " << "(0, 0.6, 0, 0.8)" << "\n";
+    std::cout << "Got:      " << buf << "\n\n";
+
+    q6.data[3] += 1;
+    q6.print(buf);
+    std::cout << "Testing union 2 \n";
+    std::cout << "Expecting: " << "(0, 0.6, 0, 1.8)" << "\n";
+    std::cout << "Got:      " << buf << "\n\n";
+
     return 0;
 }

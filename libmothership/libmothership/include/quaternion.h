@@ -6,17 +6,22 @@
 #ifndef STRUCT_3DPOSE
 #define STRUCT_3DPOSE
 
-struct Vector3D {
-    float x, y, z;
-};
+#include "BasicLinearAlgebra/BasicLinearAlgebra.h"
+#include "msvector.h"
 
 #endif
 
 struct Quaternion { 
-    float w, i, j, k;
+    union {
+        struct {
+            float w, i, j, k;
+        }; 
+        float data[4];
+    };
+
     public:
     Quaternion(float wq, float iq, float jq, float kq); 
-    Quaternion(Vector3D vec);   // create pure quaternion from vec
+    Quaternion(MSVector3 vec);   // create pure quaternion from vec
     Quaternion();
     float norm();
     void normize();
@@ -30,7 +35,7 @@ struct Quaternion {
     bool operator ==(Quaternion q);
     void print(char* buf);
     void operator =(Quaternion q);
-    Vector3D vec();
+    MSVector3 vec();
 };
 
 

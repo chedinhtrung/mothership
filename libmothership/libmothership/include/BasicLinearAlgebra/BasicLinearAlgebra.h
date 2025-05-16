@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef PLATFORM_ARDU
 #include "Arduino.h"
-#include "Printable.h"
+#endif
+//#include "Printable.h"
 
 #include "ElementStorage.h"
 
@@ -13,7 +15,7 @@ namespace BLA
 {
 
 template <typename DerivedType, int rows, int cols, typename d_type>
-struct MatrixBase : public Printable {
+struct MatrixBase {
    public:
     constexpr static int Rows = rows;
     constexpr static int Cols = cols;
@@ -150,25 +152,6 @@ struct MatrixBase : public Printable {
         return ret;
     }
 
-    size_t printTo(Print& p) const final
-    {
-        size_t n;
-        n = p.print('[');
-
-        for (int i = 0; i < Rows; i++)
-        {
-            n += p.print('[');
-
-            for (int j = 0; j < Cols; j++)
-            {
-                n += p.print(static_cast<const DerivedType *>(this)->operator()(i, j));
-                n += p.print((j == Cols - 1) ? ']' : ',');
-            }
-
-            n += p.print((i == Rows - 1) ? ']' : ',');
-        }
-        return n;
-    }
 };
 
 template <typename DerivedType>
