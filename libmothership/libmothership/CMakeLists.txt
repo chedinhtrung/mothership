@@ -10,6 +10,7 @@ add_library(mothership STATIC ${SOURCES})
 # Test scripts
 add_executable(test_dexch ${SOURCES} test/dexch.cpp)
 add_executable(test_network ${SOURCES} test/network.cpp)
+add_executable(test_quaternion ${SOURCES} test/test_quaternion.cpp)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(test_network PRIVATE ws2_32)

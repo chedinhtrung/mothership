@@ -15,7 +15,8 @@ struct Vector3D {
 struct Quaternion { 
     float w, i, j, k;
     public:
-    Quaternion(float wq, float iq, float jq, float kq);
+    Quaternion(float wq, float iq, float jq, float kq); 
+    Quaternion(Vector3D vec);   // create pure quaternion from vec
     Quaternion();
     float norm();
     void normize();
@@ -23,10 +24,13 @@ struct Quaternion {
     Quaternion operator +(Quaternion q);
     Quaternion operator *(Quaternion q);
     Quaternion operator *(float s);
+    Quaternion operator /(float s);
+    Quaternion operator /(Quaternion q);
+    Quaternion inv();
     bool operator ==(Quaternion q);
     void print(char* buf);
+    void operator =(Quaternion q);
     Vector3D vec();
-
 };
 
 

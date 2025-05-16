@@ -1,5 +1,6 @@
 #include "quaternion.h"
 #include <cstdio>
+#include <math.h>
 
 Quaternion::Quaternion(float wq, float iq, float jq, float kq){
     w = wq;
@@ -23,7 +24,7 @@ Quaternion Quaternion::T(){
 }
 
 float Quaternion::norm(){
-    return w*w + i*i + j*j + k*k;
+    return sqrt(w*w + i*i + j*j + k*k);
 }
 
 void Quaternion::normize(){
@@ -32,6 +33,13 @@ void Quaternion::normize(){
     i /= n;
     j /= n;
     k /= n;
+}
+
+void Quaternion::operator=(Quaternion q){
+    w = q.w;
+    i = q.i;
+    j = q.j; 
+    k = q.k;
 }
 
 Quaternion Quaternion::operator*(float s){
@@ -47,10 +55,22 @@ Quaternion Quaternion::operator*(Quaternion q){
     // Reference: Jack Kuipers Quaternion & Rotation Sequences, p.109 Eq (5.3)
     Quaternion res;
     res.w = q.w*w - q.i*i - q.j*j - q.k*k;
-    res.i = q.w*i + q.i*w - q.j*k - q.k*j;
+    res.i = q.w*i + q.i*w - q.j*k + q.k*j;
     res.j = q.w*j + q.i*k + q.j*w - q.k*i;
     res.k = q.w*k - q.i*j + q.j*i + q.k*w;
     return res;
+}
+
+Quaternion Quaternion::inv(){
+    return T() / (norm() * norm());
+}
+
+Quaternion Quaternion::operator/(float s){
+    return Quaternion(w/s, i/s, j/s, k/s);
+}
+
+Quaternion Quaternion::operator/(Quaternion q){
+    return *this * q.inv();
 }
 
 void Quaternion::print(char* buf){
