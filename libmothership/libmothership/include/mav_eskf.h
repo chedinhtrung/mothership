@@ -25,7 +25,7 @@ union State {
     }
 
     void propagate(MSVector3 accel, MSVector3 gyro, float dt);
-    void update(ErrorState es);
+    void update(const ErrorState &es);
     
 };
 
@@ -48,7 +48,7 @@ union ErrorState {
         return *reinterpret_cast<const BLA::Matrix<3,1,float>*>(statevec);
     }
 
-    void propagate(State s, MSVector3 accel, MSVector3 gyro, float dt);
+    void propagate(const State &n, MSVector3 accel, MSVector3 gyro, float dt);
     void update_accel(MSVector3 accel, float dt);
     void update_pos(MSVector3 pos, float dt);
     void update_vel(MSVector3 vel, float dt);

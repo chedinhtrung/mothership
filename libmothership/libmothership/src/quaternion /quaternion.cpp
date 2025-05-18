@@ -21,7 +21,7 @@ Quaternion::Quaternion(MSVector3 v){
     k = v.z;
 }
 
-Quaternion Quaternion::T(){
+Quaternion Quaternion::T() const{
     Quaternion conj;    // Suggestion: memcpy?
     conj.w = w;
     conj.i = -i;
@@ -30,7 +30,7 @@ Quaternion Quaternion::T(){
     return conj;
 }
 
-float Quaternion::norm(){
+float Quaternion::norm() const{
     return sqrt(w*w + i*i + j*j + k*k);
 }
 
@@ -49,7 +49,7 @@ void Quaternion::operator=(Quaternion q){
     k = q.k;
 }
 
-Quaternion Quaternion::operator*(float s){
+Quaternion Quaternion::operator*(float s) const{
     Quaternion res;
     res.w = s*w;
     res.i = s*i;
@@ -58,7 +58,7 @@ Quaternion Quaternion::operator*(float s){
     return res;
 }
 
-Quaternion Quaternion::operator*(Quaternion q){
+Quaternion Quaternion::operator*(Quaternion q) const{
     // Reference: Jack Kuipers Quaternion & Rotation Sequences, p.109 Eq (5.3)
     Quaternion res;
     res.w = q.w*w - q.i*i - q.j*j - q.k*k;
@@ -73,21 +73,21 @@ Quaternion Quaternion::inv(){
     return T() / (n*n);
 }
 
-Quaternion Quaternion::operator/(float s){
+Quaternion Quaternion::operator/(float s) const{
     return Quaternion(w/s, i/s, j/s, k/s);
 }
 
-Quaternion Quaternion::operator/(Quaternion q){
+Quaternion Quaternion::operator/(Quaternion q) const{
     return *this * q.inv();
 }
 
-void Quaternion::print(char* buf){
+void Quaternion::print(char* buf) const{
     sprintf(buf, "(w: %f; i: %f, j: %f, k: %f) \n", w, i, j, k);
     // Printing is platform dependent. On MCU it would be using Serial interface.
     // Here only prints into a buffer.
 }
 
-MSVector3 Quaternion::vec(){
+MSVector3 Quaternion::vec() const{
     MSVector3 vec;
     vec.x = i;
     vec.y = j; 
@@ -95,16 +95,16 @@ MSVector3 Quaternion::vec(){
     return vec;
 }
 
-Quaternion Quaternion::operator +(Quaternion q){
+Quaternion Quaternion::operator +(Quaternion q) const{
     Quaternion res(w + q.w, i+q.i, j+q.j, k+q.k);
     return res;
 }
 
-bool Quaternion::operator ==(Quaternion q){
+bool Quaternion::operator ==(Quaternion q) const{
     return w - q.w < EQ_EPSILON &&  i - q.i < EQ_EPSILON && j - q.j < EQ_EPSILON && k - q.k < EQ_EPSILON;
 } 
 
-BLA::Matrix<3,3,float> Quaternion::to_R(){
+BLA::Matrix<3,3,float> Quaternion::to_R() const{
     // Reference: Joan Sola P.25 equation 115
 
     return BLA::Matrix<3,3,float> {
@@ -116,9 +116,9 @@ BLA::Matrix<3,3,float> Quaternion::to_R(){
     };
 }
 
-MSVector3 Quaternion::rotate(MSVector3 v){
-    normize();
+MSVector3 Quaternion::rotate(MSVector3 v) const{
+    Quaternion nq = *this/norm();
     Quaternion vq = Quaternion(v);
-    Quaternion res = *this * vq * this->T();
+    Quaternion res = nq * vq * nq.T();
     return MSVector3(vq.i, vq.j, vq.k);
 }

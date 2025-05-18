@@ -27,21 +27,21 @@ struct Quaternion {
     Quaternion(MSVector3 vec);   // create pure quaternion from vec
     Quaternion(BLA::Matrix<3,3,float> rotmat); // convert from rotation matrix
     Quaternion();
-    float norm();
+    float norm() const;
     void normize();
-    Quaternion T();        //  returns conjugate. 
-    Quaternion operator +(Quaternion q);
-    Quaternion operator *(Quaternion q);
-    Quaternion operator *(float s);
-    Quaternion operator /(float s);
-    Quaternion operator /(Quaternion q);
+    Quaternion T() const;        //  returns conjugate. 
+    Quaternion operator +(Quaternion q) const;
+    Quaternion operator *(Quaternion q) const;
+    Quaternion operator *(float s) const;
+    Quaternion operator /(float s) const;
+    Quaternion operator /(Quaternion q) const;
     Quaternion inv();
-    bool operator ==(Quaternion q);
-    void print(char* buf);
+    bool operator ==(Quaternion q) const;
+    void print(char* buf) const;
     void operator =(Quaternion q);
-    MSVector3 vec();
-    BLA::Matrix<3,3,float> to_R();      // converts to rotation matrix
-    MSVector3 rotate(MSVector3 v);
+    MSVector3 vec() const;
+    BLA::Matrix<3,3,float> to_R() const;      // converts to rotation matrix
+    MSVector3 rotate(MSVector3 v) const;
 };
 
 
