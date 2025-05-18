@@ -14,8 +14,15 @@ Quaternion::Quaternion(){
     i = j = k = 0;
 }
 
+Quaternion::Quaternion(MSVector3 v){
+    w = 0.0f;       // Suggestion: memcpy?
+    i = v.x;
+    j = v.y;
+    k = v.z;
+}
+
 Quaternion Quaternion::T(){
-    Quaternion conj;
+    Quaternion conj;    // Suggestion: memcpy?
     conj.w = w;
     conj.i = -i;
     conj.j = -j;
@@ -36,7 +43,7 @@ void Quaternion::normize(){
 }
 
 void Quaternion::operator=(Quaternion q){
-    w = q.w;
+    w = q.w;        // Suggestion: memcpy?
     i = q.i;
     j = q.j; 
     k = q.k;
@@ -62,7 +69,8 @@ Quaternion Quaternion::operator*(Quaternion q){
 }
 
 Quaternion Quaternion::inv(){
-    return T() / (norm() * norm());
+    float n = norm();
+    return T() / (n*n);
 }
 
 Quaternion Quaternion::operator/(float s){
@@ -95,3 +103,22 @@ Quaternion Quaternion::operator +(Quaternion q){
 bool Quaternion::operator ==(Quaternion q){
     return w - q.w < EQ_EPSILON &&  i - q.i < EQ_EPSILON && j - q.j < EQ_EPSILON && k - q.k < EQ_EPSILON;
 } 
+
+BLA::Matrix<3,3,float> Quaternion::to_R(){
+    // Reference: Joan Sola P.25 equation 115
+
+    return BLA::Matrix<3,3,float> {
+        w*w  + i*i - j*j - k*k,         2*(i*j - w*k),       2*(i*k + w*j),
+
+        2*(i*j + w*k),             w*w - i*i + j*j - k*k,    2*(j*k - w*i),
+
+        2*(i*k - w*j),                   2*(j*k + w*i),      w*w - i*i - j*j + k*k    
+    };
+}
+
+MSVector3 Quaternion::rotate(MSVector3 v){
+    normize();
+    Quaternion vq = Quaternion(v);
+    Quaternion res = *this * vq * this->T();
+    return MSVector3(vq.i, vq.j, vq.k);
+}

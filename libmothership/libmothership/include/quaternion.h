@@ -1,17 +1,21 @@
 #ifndef QUATERNION
 #define QUATERNION
 
-#define EQ_EPSILON 0.000001
-
-#ifndef STRUCT_3DPOSE
-#define STRUCT_3DPOSE
+#define EQ_EPSILON 1e-6
 
 #include "BasicLinearAlgebra/BasicLinearAlgebra.h"
 #include "msvector.h"
 
-#endif
+
+/*
+    WARNING: 
+    This struct uses Union. It relies on w,i,j,k being all the same type and the same 
+    type as data[4]. Only then is the memory layout contiguous. 
+    Breaking this will lead to RANDOM BEHAVIOR
+*/
 
 struct Quaternion { 
+    public:
     union {
         struct {
             float w, i, j, k;
@@ -19,9 +23,9 @@ struct Quaternion {
         float data[4];
     };
 
-    public:
     Quaternion(float wq, float iq, float jq, float kq); 
     Quaternion(MSVector3 vec);   // create pure quaternion from vec
+    Quaternion(BLA::Matrix<3,3,float> rotmat); // convert from rotation matrix
     Quaternion();
     float norm();
     void normize();
@@ -36,6 +40,8 @@ struct Quaternion {
     void print(char* buf);
     void operator =(Quaternion q);
     MSVector3 vec();
+    BLA::Matrix<3,3,float> to_R();      // converts to rotation matrix
+    MSVector3 rotate(MSVector3 v);
 };
 
 
