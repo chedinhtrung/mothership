@@ -119,6 +119,6 @@ BLA::Matrix<3,3,float> Quaternion::to_R() const{
 MSVector3 Quaternion::rotate(MSVector3 v) const{
     Quaternion nq = *this/norm();
     Quaternion vq = Quaternion(v);
-    Quaternion res = nq * vq * nq.T();
-    return MSVector3(vq.i, vq.j, vq.k);
+    Quaternion res = nq * vq * (nq.T());
+    return MSVector3(res.i, res.j, res.k);
 }

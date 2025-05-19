@@ -62,5 +62,15 @@ int main(){
     std::cout << "Expecting: " << "(0, 0.6, 0, 1.8)" << "\n";
     std::cout << "Got:      " << buf << "\n\n";
 
+    Quaternion q8(sqrt(2.0f)/2.0f, 0, 0, sqrt(2.0f)/2.0f);
+    Quaternion q8inv = q8.inv();
+    Quaternion q8T = q8.T();
+
+    q8inv.print(buf);
+    std::cout << "Testing conjugate = inverse for unit q \n";
+    std::cout << "Expecting: " << buf << "\n";
+    q8T.print(buf);
+    std::cout << "Got:      " << buf << "\n\n";
+
     return 0;
 }
