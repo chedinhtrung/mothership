@@ -13,6 +13,10 @@ MSVector3::MSVector3(float vx, float vy, float vz){
     z = vz;
 }
 
+MSVector3::MSVector3(){
+
+}
+
 float MSVector3::operator*(MSVector3 v){
     return x * v.x + y * v.y + z * v.z;
 }

@@ -9,9 +9,9 @@ union State {
     struct StateStruct {
         MSVector3 p;     // Position in NED
         MSVector3 v;     // velocity in NED
+        Quaternion q;    // Drone orientation
         MSVector3 ab;    // Accelerometer bias
         MSVector3 gb;    // Gyroscope bias
-        Quaternion q;    // Drone orientation
         MSVector3 g;     // gravity vector
     } state; 
     float statevec[19];
@@ -33,19 +33,19 @@ union ErrorState {
     struct StateStruct {
         MSVector3 p;     // Position in NED
         MSVector3 v;     // velocity in NED
+        MSVector3 theta;    // Infinitesimal angle rotation
         MSVector3 ab;    // Accelerometer bias
         MSVector3 gb;    // Gyroscope bias
-        MSVector3 theta;    // Infinitesimal angle rotation
         MSVector3 g;     // gravity vector
     } d; // d for delta
-    float statevec[18];
+    float dvec[18];
 
-    BLA::Matrix<3,1>& as_BlaVec(){
-        return *reinterpret_cast<BLA::Matrix<3,1,float>*>(statevec);
+    BLA::Matrix<18,1, float>& as_BlaVec(){
+        return *reinterpret_cast<BLA::Matrix<18,1,float>*>(dvec);
     }
 
-    const BLA::Matrix<3,1>& as_BlaVec() const{
-        return *reinterpret_cast<const BLA::Matrix<3,1,float>*>(statevec);
+    const BLA::Matrix<18,1, float>& as_BlaVec() const{
+        return *reinterpret_cast<const BLA::Matrix<18,1,float>*>(dvec);
     }
 
     void propagate(const State &n, MSVector3 accel, MSVector3 gyro, float dt);

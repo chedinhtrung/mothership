@@ -19,13 +19,13 @@ struct MSVector3 {
     public:
     union {
         struct {
-            float x, y, z;
+            float x, y, z = 0.0f;
         };
         float data[3];
     };
 
     MSVector3(float vx, float vy, float vz);
-    MSVector3() = default;
+    MSVector3();
 
     BLA::Matrix<3,1>& as_BlaVec(){
         return *reinterpret_cast<BLA::Matrix<3,1,float>*>(data);
