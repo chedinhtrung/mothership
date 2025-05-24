@@ -25,6 +25,7 @@ struct MSVector3 {
     };
 
     MSVector3(float vx, float vy, float vz);
+    MSVector3(BLA::Matrix<3,1,float> bla_vec);
     MSVector3();
 
     BLA::Matrix<3,1>& as_BlaVec(){
@@ -47,6 +48,7 @@ struct MSVector3 {
     float norm();
     MSVector3 cross(MSVector3 v);
     Quaternion to_dq();
+    BLA::Matrix<3,3,float> to_skewsymL();
 };
 
 

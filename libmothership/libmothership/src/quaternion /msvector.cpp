@@ -17,6 +17,12 @@ MSVector3::MSVector3(){
 
 }
 
+MSVector3::MSVector3(BLA::Matrix<3,1,float> bla_vec){
+    x = bla_vec(0,0);
+    y = bla_vec(1,0);
+    z = bla_vec(2,0);
+}
+
 float MSVector3::operator*(MSVector3 v){
     return x * v.x + y * v.y + z * v.z;
 }
@@ -66,4 +72,12 @@ Quaternion MSVector3::to_dq(){
     float mag = norm();
     MSVector3 u_sin = *this * (1.0f/mag) * sin(mag/2);
     return Quaternion(cos(mag/2.0f), u_sin.x, u_sin.y, u_sin.z);
+}
+
+BLA::Matrix<3,3,float> MSVector3::to_skewsymL(){
+    return BLA::Matrix<3,3,float> (
+        0 , -z, y,
+        z , 0 , -x,
+        -y, x , 0
+    );
 }

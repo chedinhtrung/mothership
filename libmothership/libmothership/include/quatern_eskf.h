@@ -40,11 +40,11 @@ union QErrorState {
     public:
     QErrorState();
 
-    BLA::Matrix<9,1>& as_BlaVec(){
+    BLA::Matrix<9,1, float>& as_BlaVec(){
         return *reinterpret_cast<BLA::Matrix<9,1,float>*>(dvec);
     }
 
-    const BLA::Matrix<9,1>& as_BlaVec() const{
+    const BLA::Matrix<9,1, float>& as_BlaVec() const{
         return *reinterpret_cast<const BLA::Matrix<9,1,float>*>(dvec);
     }
 
@@ -69,7 +69,7 @@ struct QEskf {
     float gyro_var = (0.1/180*M_PI)*(0.1/180/M_PI);         // Theta_i
     float gyro_drift_var = 1e-10;   // Omega_i
 
-    float flat_var = (2/180*M_PI)*(2/180*M_PI); // initial flatness covariance
+    float flat_var = (6/180*M_PI)*(6/180*M_PI); // initial flatness covariance of 2 degrees
 
     float KF_DT;
 
@@ -84,7 +84,8 @@ struct QEskf {
 
     BLA::Matrix<9,9,float> Q = BLA::Eye<9,9,float>();
 
-    // Accelerometer covariance matrix Ra 
+    // Accelerometer noise covariance matrix Ra 
+     BLA::Matrix<3,3,float> Ra = BLA::Eye<3,3,float>()*accel_var;
 
     // System covariance matrix Q
 

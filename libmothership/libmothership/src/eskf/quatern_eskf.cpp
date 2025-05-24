@@ -18,8 +18,12 @@ void QErrorState::propagate(const QState &n, MSVector3 gyro, float dt){
     d.theta = ((gyro - n.state.gb)*dt).to_dq().T().rotate(d.theta) - d.gb*dt;
 }
 
+void QErrorState::reset(){
+    memset(this, 0, sizeof(QErrorState));
+}
+
 void QEskf::build_matrix_Q(){
-    // inserts the covariance values into the intial P matrix
+    // inserts the covariance values into the intial Q matrix
     // Reference: Joan Sola P.61 Eq. 271
     for (int i=0; i<3; i++){
         Q(i,i) = KF_DT * KF_DT * gyro_var;
@@ -64,5 +68,33 @@ void QEskf::build_matrix_F(MSVector3 gyro){
 }
 
 void QEskf::update(MSVector3 accel){
+    MSVector3 g(0,0,9.81);
+    Quaternion q_dq = state.state.q * error_state.d.theta.to_dq();
+    MSVector3 RT_v = q_dq.T().rotate(g*-1.0f); 
+    BLA::Matrix<3,3,float> partial_theta =  RT_v.to_skewsymL();
+
+
+    BLA::Matrix<3,9,float> H = BLA::Zeros<3,9,float>();
+
+    // Fill H with partials relative to d\theta and da_b
+    for (int j=0; j<3; j++){
+        float* col_ptr_H = &H(0,j);
+        float* col_ptr_partial_theta = &partial_theta(0,j);
+        memcpy(col_ptr_H, col_ptr_partial_theta, sizeof(float)*3);
+        H(j, 3+j) = 1.0f;
+    }
+
+    MSVector3 h_x_hat = q_dq.T().rotate(g*-1.0f) + state.state.ab + error_state.d.ab;
     
+
+    BLA::Matrix<9,3,float> K = P * (~H) * BLA::Inverse((H*P*(~H) + Ra));
+    
+    BLA::Matrix<9,1,float> current_error_state = error_state.as_BlaVec();
+
+    current_error_state = current_error_state + K * (accel - h_x_hat).as_BlaVec();
+
+    state.update(error_state);
+
+    error_state.reset();
+
 }

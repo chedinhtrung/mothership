@@ -1,4 +1,3 @@
-#include "dataexchange.h"
 #include <iostream>
 #include <cstring> 
 #include <math.h>
@@ -30,7 +29,7 @@ int main(){
     std::cout << "Expecting: " << "(0,1,0)" << "\n";
     std::cout << "Got:      " << buf << "\n\n";
 
-    Quaternion q2(0.5f, 0.5f, 0.5f, 0.5f);      // rotate 120 deg around 1,1,1
+    Quaternion q2(0.5f, 0.5f, 0.5f, 0.5f);      
     v = MSVector3(1,2,3);
     rv = q2.rotate(v);
 

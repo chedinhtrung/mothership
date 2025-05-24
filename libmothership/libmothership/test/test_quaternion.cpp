@@ -1,4 +1,3 @@
-#include "dataexchange.h"
 #include <iostream>
 #include <cstring> 
 #include <math.h>
