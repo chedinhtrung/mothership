@@ -1,4 +1,6 @@
 #pragma once
+#include <algorithm>
+using std::max; 
 
 namespace BLA
 {
