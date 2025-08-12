@@ -3,11 +3,11 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 project(MissionControl)
 
-set(CMAKE_PREFIX_PATH "C:/Qt/6.7.3/msvc2019_64")
+# set(CMAKE_PREFIX_PATH "C:/Qt/6.7.3/msvc2019_64/lib/cmake")
 # TODO: build cfg for ubuntu
+set(CMAKE_PREFIX_PATH "/home/steve/Qt/6.7.3/gcc_64")
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OpenGL OpenGLWidgets WebEngineWidgets)
-
-find_library(OPENGL_LIB NAMES opengl32 PATHS "C:/Windows/System32")
+find_package(OpenGL REQUIRED)
 
 file(GLOB SOURCES "src/*.cpp" "src/ui/*.cpp")
 file(GLOB HEADERS "include/*.h" "include/ui/*.h" "../lib") 
@@ -35,9 +35,4 @@ target_link_libraries(MissionControl
     Qt6::WebEngineWidgets
 )
 
-if(OPENGL_LIB)
-    message(STATUS "Found OpenGL: ${OPENGL_LIB}")
-    target_link_libraries(MissionControl PRIVATE ${OPENGL_LIB})
-else()
-    message("OpenGL not found!")
-endif()
+target_link_libraries(MissionControl PRIVATE OpenGL::GL)

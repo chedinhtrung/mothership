@@ -89,13 +89,14 @@ void FlightDisplay::draw_pitchmarker(float pitch, float roll,
     float x2t = x2 * cos(roll_rad) - y2 * sin(roll_rad);
     float y2t = x2 * sin(roll_rad) + y2 * cos(roll_rad);
     
+    
+    draw_text(text,x2t, y2t, roll_rad+M_PI/2, 15, 0, QColor(0, 204, 127, alpha*254));
+    glLineWidth(3.0);
     if (zero){
         glColor4f(1.0f, 0.0f, 0.0f, alpha);
     } else {
         glColor4f(0.0f, 0.8f, 0.5f, alpha);
     }
-    draw_text(text,x2t, y2t, roll_rad+M_PI/2, 15, 0, QColor(0, 204, 127, alpha*254));
-    glLineWidth(3.0);
     glBegin(GL_LINES);
         glVertex2f(x1t, y1t); 
         glVertex2f(x2t, y2t); 
@@ -167,6 +168,7 @@ void FlightDisplay::draw_heading_markers(float heading, float r){
     glColor3f(0.0f, 0.8f, 0.5f);
     glLineWidth(3.0f);
     for (int i=-36; i<=36; i++){
+        glColor3f(0.0f, 0.8f, 0.5f);
         float angle = (90 - i*5 + heading)*3.14159/180;
         // Markers
         glBegin(GL_LINES);
@@ -320,6 +322,7 @@ void FlightDisplay::draw_ruler_alt(float alt, float x, float y, float h, int ran
     float len_marker_base = 0.03;
     
     for (int i=-range/2/step_s-step_l; i<=range/2/step_s+step_l; i++){
+        glColor3f(0.0f, 0.8f, 0.5f);
         float len_marker = len_marker_base;
         float coord_y = (i-offset/step_s)*steplen;
         if (coord_y < -h/2 || coord_y > h/2){continue;}
@@ -330,6 +333,7 @@ void FlightDisplay::draw_ruler_alt(float alt, float x, float y, float h, int ran
             draw_text(QString::number(mark_num), x+len_marker, coord_y, M_PI/2, 12);
         } 
         else if (i*step_s%step_m == 0){len_marker*=1.7;}
+        glColor3f(0.0f, 0.8f, 0.5f);
         glBegin(GL_LINES);
         glVertex2f(x, coord_y);
         glVertex2f(x+len_marker, coord_y);
@@ -380,7 +384,6 @@ void FlightDisplay::draw_indicator_airspeed(float x, float w, float h){
 }
 
 void FlightDisplay::draw_ruler_airspeed(float airspeed, float x, float y, float h, int range, int step_s, int step_l){
-    glColor3f(0.0f, 0.8f, 0.5f);
     glLineWidth(3.0);
     glBegin(GL_LINES);
         glVertex2f(x, -h/2+y);
@@ -395,6 +398,7 @@ void FlightDisplay::draw_ruler_airspeed(float airspeed, float x, float y, float 
     float len_marker_base = 0.03;
     
     for (int i=-range/2/step_s-step_l; i<=range/2/step_s+step_l; i++){
+        glColor3f(0.0f, 0.8f, 0.5f);
         float len_marker = len_marker_base;
         float coord_y = (i-offset/step_s)*steplen;
         if (coord_y < -h/2 || coord_y > h/2){continue;}
@@ -404,6 +408,7 @@ void FlightDisplay::draw_ruler_airspeed(float airspeed, float x, float y, float 
             int mark_num = static_cast<int>(airspeed/step_l)*step_l + i*step_s;
             draw_text(QString::number(mark_num), x-len_marker, coord_y, M_PI/2, -12);
         } 
+        glColor3f(0.0f, 0.8f, 0.5f);
         glBegin(GL_LINES);
         glVertex2f(x, coord_y);
         glVertex2f(x-len_marker, coord_y);
