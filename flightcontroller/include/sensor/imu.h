@@ -3,7 +3,11 @@
 
 #include <Arduino.h>
 
-#define ADDR_9250 0x68      // Address of MPU9250/MPU6050
+#define MPU9250           // Set the IMU being used. please define only ONE
+
+#ifdef MPU9250
+#define IMUADDR 0x68      // Address of MPU9250/MPU6050
+#endif
 
 struct RawImuData {
     int16_t x = 0;
@@ -25,16 +29,20 @@ struct ImuData {
 class Imu {
     public:  
         ImuData offset; 
-        void setup();
-        ImuData read();
+        virtual void setup();
+        virtual ImuData read();
         void calibrate_gyro();
+
+        virtual ~Imu() = default;
 
         RawImuData raw_accels;
         RawImuData raw_gyros;      // Save raw values for reporting/debugs
 };
 
-class Mpu9250 {
-
+class Mpu9250 : public Imu {
+    public: 
+        void setup() override;
+        ImuData read() override;
 };
 
 
