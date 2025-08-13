@@ -4,8 +4,11 @@
 #include "config.h"
 #include "sensor/imu.h"
 #include "utils/debugger.h"
+#include "quaternion.h"
+#include "sensor/alt.h"
 
 Mpu9250 imu;
+Dps310Altimeter alt;
 
 void setup(){
     Serial.begin(115200);   // Serial debug
@@ -15,14 +18,16 @@ void setup(){
 
     imu.setup();
     delay(100);
+    
+    alt.setup();
+    delay(100);
 }
 
 unsigned long last_mainloop_update;
 
 void loop(){
-    if (micros() - last_mainloop_update > DT*1e3){
-        last_mainloop_update = micros();
-        ImuData data = imu.read();
-        debug("gyro", data.gyro); 
+    if (micros() - last_mainloop_update > 100*1e3){
+        float a = alt.read() + alt.initial;
+        debug("alt", a);
     }
 }

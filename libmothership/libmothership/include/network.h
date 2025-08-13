@@ -2,7 +2,7 @@
 #define NETWORK
 #define WIN32_LEAN_AND_MEAN
 
-#define PLATFORM_UNIX   // For Unix build. Change to PLATFORM_WIN if windows because it uses a different lib for sockets
+//#define PLATFORM_UNIX   // For Unix build. Change to PLATFORM_WIN if windows because it uses a different lib for sockets
 #ifdef PLATFORM_WIN
 #include <winsock2.h>
 #include <ws2tcpip.h>

@@ -15,5 +15,5 @@ void debug(const char* label, ConvertedImuData data){
 void debug(const char* label, float fval){
     Serial.print(label);
     Serial.print(":  ");
-    Serial.print(fval, 3);
+    Serial.println(fval, 3);
 }
