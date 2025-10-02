@@ -28,6 +28,7 @@ MapView::MapView(QWidget* parent, QString map_api_key) : QWebEngineView(parent){
 }
 
 void MapView::onTestUpdate(){
+    static float lon, lat, head = 0.0f;
     lon += 0.001;
     lat += 0.001;
     head += 1;
@@ -39,9 +40,9 @@ MapView::~MapView(){
 }
 
 void MapView::updateLocation(float lon, float lat, float heading){
-    char buf[200];
-    sprintf(buf, "update_location(%f, %f, %f)", lon, lat, heading);
-    qDebug() << buf;
+    char buf[70];
+    sprintf(buf, "update_location(%.6f, %.6f, %.6f)", lon, lat, heading);
+    //qDebug() << buf;
     QString JSCall = QString(buf);
     page()->runJavaScript(JSCall);
 }
