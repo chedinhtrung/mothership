@@ -77,11 +77,11 @@ struct Message {
 
 template<typename PL_TYPE>
 Message::Message(PL_TYPE pl){
-    if constexpr (std::is_same_v<PL_TYPE, NavPayload>){
+    if constexpr (std::is_same<PL_TYPE, NavPayload>::value){
         type = M_NAV;
-    } else if constexpr (std::is_same_v<PL_TYPE, FlightDispPayload>) {
+    } else if constexpr (std::is_same<PL_TYPE, FlightDispPayload>::value) {
         type = M_FLIGHTDISP;
-    } else if constexpr (std::is_same_v<PL_TYPE, SensPayload>) {
+    } else if constexpr (std::is_same<PL_TYPE, SensPayload>::value) {
         type=M_SENS;
     }
     // Further payload types here
