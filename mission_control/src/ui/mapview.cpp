@@ -14,13 +14,16 @@ MapView::MapView(QWidget* parent, QString map_api_key) : QWebEngineView(parent){
     settings()->setAttribute(QWebEngineSettings::WebGLEnabled, true);
     setZoomFactor(0.7);
 
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAutoFillBackground(false);
+
     QString html = loadHtml(map_api_key);
     setHtml(html);
 
     // test function
-    //QTimer* timer = new QTimer(this);
-    //connect(timer, &QTimer::timeout, this, &MapView::onTestUpdate);
-    //timer->start(150);
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MapView::onTestUpdate);
+    timer->start(150);
 }
 
 void MapView::onTestUpdate(){
@@ -38,6 +41,7 @@ MapView::~MapView(){
 void MapView::updateLocation(float lon, float lat, float heading){
     char buf[50];
     sprintf(buf, "update_location(%f, %f, %f)", lon, lat, heading);
+    //qDebug() << buf;
     QString JSCall = QString(buf);
     page()->runJavaScript(JSCall);
 }

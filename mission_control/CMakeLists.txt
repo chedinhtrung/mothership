@@ -3,7 +3,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 project(MissionControl)
 
-set(CMAKE_PREFIX_PATH "C:/Qt/6.7.3/msvc2019_64")
+set(CMAKE_PREFIX_PATH "C:/Qt/6.8.3/msvc2022_64")
 # TODO: build cfg for ubuntu
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui OpenGL OpenGLWidgets WebEngineWidgets)
 

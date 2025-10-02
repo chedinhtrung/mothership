@@ -8,6 +8,9 @@ QString mainui_style = R"(
 )";
 
 MainUI::MainUI(QWidget* parent) : QWidget(parent){
+
+    
+
     setStyleSheet(mainui_style);
     setWindowTitle("Mission Control v5.0");
     setWindowFlags(Qt::FramelessWindowHint);
@@ -43,7 +46,7 @@ MainUI::MainUI(QWidget* parent) : QWidget(parent){
     row2->addWidget(sidebar);
     row2->addLayout(row2col1);
     row2->addWidget(tabbar);
-
+    
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(topbar);

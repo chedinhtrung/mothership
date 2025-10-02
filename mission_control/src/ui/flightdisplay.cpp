@@ -12,18 +12,16 @@ FlightDisplay::FlightDisplay(QWidget* parent) : QOpenGLWidget(parent){
     int height = static_cast<int>(screenHeight/2.5);
     setFixedSize(QSize(width, height));
     //setAttribute(Qt::WA_AlwaysStackOnTop, true);
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAutoFillBackground(false);
+    setUpdateBehavior(QOpenGLWidget::NoPartialUpdate);
 
     // test function
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &FlightDisplay::onTestUpdate);
     timer->start(100);
-    /* 
-    roll = 30;
-    pitch = 10;
-    heading = 10;
-    alt = 115.7;
-    update();
-    */
+    
+    
 }
 
 void FlightDisplay::onTestUpdate(){
