@@ -13,6 +13,10 @@ class MapView : public QWebEngineView {
     QString loadHtml(QString map_api_key="");
     void updateLocation(float lon, float lat, float heading=0.0);
     void onTestUpdate();
+    
+    float lon = 0.0f;
+    float lat = 0.0f;
+    float head = 0.0f;
 
 };
 

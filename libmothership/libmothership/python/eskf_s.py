@@ -107,7 +107,7 @@ class Eskf:
 
         w,x,y,z = self.state.q.w, self.state.q.x, self.state.q.y, self.state.q.z
 
-        H_x = np.array([ 
+        H_x = np.array([            # question: Where is the factor 2 in this derivative???
             [y, -z, w, -x],
             [-x, -w, -z, -y],
             [-w, x, y, -z]

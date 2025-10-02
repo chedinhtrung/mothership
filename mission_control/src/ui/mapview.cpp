@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QWebEngineSettings>
 #include <QTimer>
+#include <locale.h>
 
 MapView::MapView(QWidget* parent, QString map_api_key) : QWebEngineView(parent){
     settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
@@ -17,14 +18,16 @@ MapView::MapView(QWidget* parent, QString map_api_key) : QWebEngineView(parent){
     QString html = loadHtml(map_api_key);
     setHtml(html);
 
+    setlocale(LC_NUMERIC, "C");  // To force sprintf to use "." instead of "," for numbers.
+    // This is neccessary due to calling JS execution in UpdateLocation using JS strings!
+
     // test function
-    //QTimer* timer = new QTimer(this);
-    //connect(timer, &QTimer::timeout, this, &MapView::onTestUpdate);
-    //timer->start(150);
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MapView::onTestUpdate);
+    timer->start(150);
 }
 
 void MapView::onTestUpdate(){
-    static float lon, lat, head = 0.0;
     lon += 0.001;
     lat += 0.001;
     head += 1;
@@ -36,8 +39,9 @@ MapView::~MapView(){
 }
 
 void MapView::updateLocation(float lon, float lat, float heading){
-    char buf[50];
+    char buf[200];
     sprintf(buf, "update_location(%f, %f, %f)", lon, lat, heading);
+    qDebug() << buf;
     QString JSCall = QString(buf);
     page()->runJavaScript(JSCall);
 }
