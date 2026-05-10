@@ -7,7 +7,7 @@
 #ifndef FLIGHTDISP
 #define FLIGHTDISP
 
-struct coord {
+struct Coord {  // Coordinate in pixel, relative, etc. I dont care, just x and 
     float x;
     float y;
 };
@@ -27,13 +27,24 @@ class FlightDisplay : public QOpenGLWidget, protected QOpenGLFunctions{
     FlightDisplay(QWidget* parent=nullptr);
     ~FlightDisplay();
 
-    float roll = 7.0;
-    float pitch = 0;
-    float heading = 0;
-    float bat = 0;
-    float vspeed = 0;
-    float airspeed = 0;
-    float alt = 0;
+    float roll = 0.0;
+    float pitch = 0.0;
+    float heading = 0.0;
+    float bat = 0.0;
+    float vspeed = 0.0;
+    float airspeed = 0.0;
+    float alt = 0.0;
+
+    void update_data(float roll, float pitch, float heading, float bat, float vspeed, float airspeed, float alt){
+        this->roll = roll;
+        this->pitch = pitch;
+        this->heading = heading;
+        this->bat = bat;
+        this->vspeed = vspeed;
+        this->airspeed = airspeed;
+        this->alt = alt;
+        update();
+    }
 
     protected:
 
@@ -76,7 +87,7 @@ class FlightDisplay : public QOpenGLWidget, protected QOpenGLFunctions{
     void draw_textbox(QString txt, float x, float y, float w, float h);
 
 
-    coord relative_to_pix(coord c);
+    Coord relative_to_pix(Coord c);
     
 
 
